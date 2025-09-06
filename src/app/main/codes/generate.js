@@ -60,6 +60,7 @@ function Generate(props) {
         }catch(err){
             console.log(err)
             setErrorMessage(err.name)
+            
         }
     }
 

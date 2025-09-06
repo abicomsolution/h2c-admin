@@ -1,3 +1,4 @@
+import Member from "@/models/member";
 import Code from "@/models/code";
 import { NextResponse } from "next/server";
 import connect from "@/utils/db";
@@ -12,7 +13,7 @@ export const PUT = async (request) => {
     
         await connect();        
 
-        const data =  await Code.find({status: body.status}).populate('sender_id');
+        const data =  await Code.find({member_id: '68bbcda70b12e0477ccb75df', status: body.status}).populate('sender_id');
         return NextResponse.json(data, { status: 200 });
     
     } catch (err) {

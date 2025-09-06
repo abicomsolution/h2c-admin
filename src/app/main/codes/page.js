@@ -11,10 +11,12 @@ import PreLoader from '@/components/preloader';
 import callApi from "@/utils/api-caller";
 import NoRecord from "@/components/NoRecord";
 import moment from "moment";
+import Send from "./send";
 
 export default function Codes(props) {
 
     const [showGenerate, setshowGenerate] = useState(false)
+    const [showSend, setshowSend] = useState(false)
     const { data: session, status } = useSession();
 
     const router = useRouter();
@@ -61,12 +63,17 @@ export default function Codes(props) {
     }
 
     const handleSend = ()=>{
-
+        setshowSend(true)
     }
 
     const handleGenSuccess = ()=>{
         setshowGenerate(false)
         init()   
+    }
+
+    const handleSendSuccess = ()=>{
+        setshowSend(false)
+        init()
     }
 
     let content = <PreLoader/>
@@ -105,8 +112,7 @@ export default function Codes(props) {
                     />
     }
 
-    console.log(codes)
-
+  
     return (
         <div className="mt-6 px-2">            
            <div className="md:flex justify-between">
@@ -120,6 +126,7 @@ export default function Codes(props) {
                 </div>
            </div>
            <Generate showGenerate={showGenerate} setshowGenerate={setshowGenerate} onCloseSuccess={handleGenSuccess}/>
+           <Send showSend={showSend} setshowSend={setshowSend} onCloseSuccess={handleSendSuccess} user={session?.user}/>
             <div className='mt-4'>
                 {content}
             </div>
