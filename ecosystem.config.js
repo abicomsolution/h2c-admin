@@ -1,6 +1,6 @@
 module.exports = {
   apps : [{
-    name   : "H2C-Member",
+    name   : "H2C-Admin",
     exec_mode: 'cluster',
       instances: 1,
       script: 'node_modules/next/dist/bin/next',
