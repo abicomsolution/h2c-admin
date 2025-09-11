@@ -62,12 +62,12 @@ export const authOptions = {
       strategy: "jwt", // Or "database" if using a session database
     },
     
-    // domain: ".dways.com.sg", 
+    //  domain: "admin.lvh.me",   
     cookies: {
          sessionToken: {
           name: `admin.session-token`,
           options: {
-            domain: "admin.lvh.me",        
+            domain: "admin.h2ccorp.ph",
             path: "/",
             httpOnly: true,
             sameSite: "lax",
