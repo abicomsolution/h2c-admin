@@ -66,8 +66,7 @@ export const authOptions = {
     cookies: {
          sessionToken: {
           name: `admin.session-token`,
-          options: {
-            domain: "admin.h2ccorp.ph",
+          options: {        
             path: "/",
             httpOnly: true,
             sameSite: "lax",
