@@ -11,6 +11,7 @@ const codeSchema = new Schema({
     datetime_used: { type: Date, default: null },
     codenum: { type: 'String' },
     status: { type: Number, default: 0 },
+    isCD: { type: Boolean, default: false },
     codetype: { type: Number, default: 0 },   
 }, { toJSON: { virtuals: true } });
 

@@ -59,7 +59,7 @@ export default function Earnings(props) {
         {
             name: "Username",
             selector:  row => row.username,
-            width: "140px",    
+            width: "200px",    
             sortable: true        
         },
         {
@@ -102,7 +102,13 @@ export default function Earnings(props) {
             selector:  row => row.date_time_activated?moment(row.date_time_activated).format("MMM DD, YYYY"):"-",
             sortable: true,
             width: "160px",                          
-        }
+        },
+        {
+            name: "CD",
+            selector:  row => row.isCd?"CD":"-",
+            width: "250px",                   
+            sortable: true        
+        },
         
     ];
 
@@ -119,8 +125,8 @@ export default function Earnings(props) {
 
     
     return (
-        <div className={`${interFont.className} h-full  w-full px-6`}>                    
-            <div className="h-full bg-white rounded-xl p-6">
+        <div className={`${interFont.className} w-full px-6`}>                    
+            <div className="h-full bg-white rounded-xl p-6 ">
                 <div className='flex'>                    
                     <div className="border border-[#dcdcdc] rounded-3xl px-3 md:px-6 py-2 md:py-3 mb-4 relative mt-2">
                         <input className="w-11/12 text-sm bg-transparent focus:outline-none" placeholder="Search...." id="search" name="search"  type="text" onChange={handleChange}/>
@@ -129,7 +135,7 @@ export default function Earnings(props) {
                             </span>
                     </div>                    
                 </div>
-                 <div className='mt-4'>
+                 <div className='mt-4 overflow-x-auto max-w-[800px] md:max-w-[1000px] lg:max-w-[1500px]'>
                     {content}                    
                  </div>
             </div>            

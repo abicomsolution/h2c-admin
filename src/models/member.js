@@ -28,7 +28,9 @@ const memberSchema = new Schema({
     province: { type: Schema.Types.ObjectId, ref: 'province' },
     city: { type: Schema.Types.ObjectId, ref: 'city' },
     zipcode: { type: 'String', default: '' },            
-    status: { type: Number, default: 0 }        
+    status: { type: Number, default: 0 },
+    isCd: { type: Boolean, default: false },
+    cdPaid: { type: Boolean, default: false },               
 }, { toJSON: { virtuals: true } });
 
 memberSchema.virtual('value').get(function () {

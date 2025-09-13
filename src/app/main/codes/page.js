@@ -97,6 +97,12 @@ export default function Codes(props) {
             selector:  row => row.sender_id.fullname,                       
             sortable: true        
         },
+         {
+            name: "Type",
+            selector:  row => row.isCD?"Commission Deduction":"Paid",
+            width: "250px",                   
+            sortable: true        
+        },
        
     ];
 

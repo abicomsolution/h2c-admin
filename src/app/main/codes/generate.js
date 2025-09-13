@@ -14,6 +14,7 @@ function Generate(props) {
     const [qty, setqty] = useState(0)
     const [genstate, setgenstate] = useState("")
     const [errorMessage, setErrorMessage] = useState("")
+    const [isCD, setIsCD] = useState(false)
 
     useEffect(()=>{
 
@@ -45,7 +46,7 @@ function Generate(props) {
         try{
 
             setgenstate("process")
-            const ret =  await callApi("/code",'POST',{qty: qty}) 
+            const ret =  await callApi("/code",'POST',{qty: qty, isCD: isCD}) 
             if (ret.status==200){          
                 setgenstate("success")                     
             }else{
@@ -82,7 +83,16 @@ function Generate(props) {
                             <input
                                 className="text-sm border border-[#dcdcdc] rounded-3xl px-3 md:px-6 py-2 md:py-3 mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 placeholder="" id="qty" name="qty" value={qty} onChange={handleChange} type="number" maxLength={40}></input>
-                        </div>      
+                        </div>     
+
+                        <div className="flex  gap-3 mb-4">
+                            <div className="mt-4">
+                                <Checkbox id="isCD" checked={isCD} onChange={() => setIsCD(!isCD)} />
+                            </div> 
+                            <Label htmlFor="isCD" className="md:text-lg font-medium mt-3">
+                                Commission Deduction
+                            </Label>
+                        </div>
 
                         <ModalFooter className='justify-end'>                    
                             <CancelBtn onClick={handleClose}>

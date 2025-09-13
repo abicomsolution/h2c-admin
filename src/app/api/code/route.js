@@ -13,7 +13,7 @@ export const POST = async (request) => {
 
         await connect()    
        
-        let bErr = await generate(parseInt(body.qty))
+        let bErr = await generate(parseInt(body.qty), body.isCD);
         if (bErr){
             var _err = { name: bErr};          
             return NextResponse.json(_err, { status: 500 });
@@ -29,7 +29,7 @@ export const POST = async (request) => {
 }
 
 
-const generate = async (quantity)=>{
+const generate = async (quantity, isCD)=>{
 
     try {      
 
@@ -61,7 +61,8 @@ const generate = async (quantity)=>{
                 sender_id: '68bbcda70b12e0477ccb75df',
                 datetime_used: null,
                 codenum: codenum,
-                status: 0,      
+                status: 0,    
+                isCD: isCD,  
                 codetype: 0,   
             };
             console.log(mdata)
