@@ -122,14 +122,15 @@ export default function General(props) {
                 setErrorMessage("Please enter admin fee.")
             }else   if (!formdata.tax){
                 setErrorMessage("Please enter tax.")
-            }else   if (!formdata.payout_sched){
-                setErrorMessage("Please choose minimum payout schedule.")
+            // }else   if (!formdata.payout_sched){
+            //     setErrorMessage("Please choose minimum payout schedule.")
             }else{
 
                 setsavestate("saving")  
                 let params = {...formdata, 
-                    payout_sched: formdata.payout_sched.value
+                    payout_sched: 0
                 }
+                // payout_sched: formdata.payout_sched.value
                 const ret =  await callApi("/setting/update", "POST", params) 
                 if (ret.status==200){                
                     setsavestate("success")  
@@ -199,10 +200,7 @@ export default function General(props) {
                             </Label>
                         </div>
                     </div>
-                     <div className='mt-7'>
-                        <label className="md:text-lg font-medium block text-[#404758] mb-4">Payout Schedule <span className='text-red-500 text-xs'>*</span> </label>
-                        <Select   menuPortalTarget={typeof document !== "undefined" ? document.body : null} styles={controlStyle} options={scheds} value={formdata.payout_sched}  onChange={handleChangeP} />                            
-                    </div>
+                    
                     <div className='mt-10'>
                         <PrimaryBtn type="submit"  isLoading={savestate==="saving"}>
                             Save Changes
@@ -214,3 +212,9 @@ export default function General(props) {
         </div>
     )
 }
+
+
+//  <div className='mt-7'>
+//                         <label className="md:text-lg font-medium block text-[#404758] mb-4">Payout Schedule <span className='text-red-500 text-xs'>*</span> </label>
+//                         <Select   menuPortalTarget={typeof document !== "undefined" ? document.body : null} styles={controlStyle} options={scheds} value={formdata.payout_sched}  onChange={handleChangeP} />                            
+//                     </div>
