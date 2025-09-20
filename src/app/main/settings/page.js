@@ -30,7 +30,8 @@ const tmpForm = {
     is_admin_fee_percent: false,
     tax: 0,
     is_tax_percent: false,
-    payout_sched: null
+    payout_sched: null,
+    disable_payout: false
 }
 
 const tmpPS = [
@@ -94,6 +95,10 @@ export default function General(props) {
         setForm({ ...formdata, [e.target.name]: e.target.value })
     }
 
+    const handleChangeCheckDisable= (e)=>{
+        setErrorMessage("")
+        setForm({ ...formdata, disable_payout: !formdata.disable_payout })
+    }
 
     const handleChangeCheckAdmin = (e)=>{
         setErrorMessage("")
@@ -201,6 +206,16 @@ export default function General(props) {
                         </div>
                     </div>
                     
+                     <div className='mt-6'>
+                        <label className="md:text-lg font-medium block text-[#404758] mb-4">Disable Withdrawal</label>                        
+                        <div className="-mt-2 ml-2">
+                            <Checkbox id="disable_payout" checked={formdata.disable_payout} onChange={handleChangeCheckDisable}/>
+                            <Label htmlFor="disable_payout" className="ml-3 text-base font-medium -mt-1">
+                              Yes
+                            </Label>
+                        </div>
+                    </div>
+
                     <div className='mt-10'>
                         <PrimaryBtn type="submit"  isLoading={savestate==="saving"}>
                             Save Changes

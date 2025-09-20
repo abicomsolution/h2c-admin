@@ -1,8 +1,7 @@
 import Member from "@/models/member";
-import General from  "@/models/general";
+import PaymentMethod from  "@/models/payment_method";
 import { NextResponse } from "next/server";
 import connect from "@/utils/db";
-
 
 export const POST = async (request) => {
 
@@ -11,18 +10,8 @@ export const POST = async (request) => {
     try {       
 
         await connect()    
-
-        let params = {
-            minimum_withdrawal: Number(body.minimum_withdrawal),
-            admin_fee: Number(body.admin_fee),
-            is_admin_fee_percent: body.is_admin_fee_percent,
-            is_tax_percent: body.is_tax_percent,
-            tax: body.tax,
-            // payout_sched: body.payout_sched,
-            disable_payout: body.disable_payout
-        }
        
-        await General.findOneAndUpdate({}, params)        
+        await PaymentMethod.findByIdAndDelete(body.id)
         
         return NextResponse.json({}, { status: 200 });           
     } catch (err) {
