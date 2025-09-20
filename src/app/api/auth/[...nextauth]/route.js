@@ -67,8 +67,8 @@ export const authOptions = {
          sessionToken: {
           name: `admin.session-token`,
           options: {
-            // domain: "admin.h2ccorp.ph",
-            domain: "admin.lvh.me", 
+            domain: "admin.h2ccorp.ph",
+            // domain: "admin.lvh.me", 
             path: "/",
             httpOnly: true,
             sameSite: "lax",
