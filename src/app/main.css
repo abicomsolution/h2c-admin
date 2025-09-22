@@ -82,6 +82,29 @@
     line-height: 1.25rem; */
 }
 
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    border-radius: 32px;
+    border-width: 1px;  
+    font-weight: 500;
+    transition-duration: .3s;
+    background-color: #ff3636;
+    color: #fff;
+    padding:.6rem 1rem;
+    padding-left:1.5rem;
+    padding-right: 1.5rem;
+    font-size:1rem;
+    line-height: 1.5rem;
+    cursor:pointer;    
+    /* padding: .375rem .75rem;
+    font-size: .875rem;
+    line-height: 1.25rem; */
+}
+
+
 /* 
 @media (min-width: 576px) {
     .btn-primary {

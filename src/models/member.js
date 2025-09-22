@@ -25,12 +25,20 @@ const memberSchema = new Schema({
     mobile2: { type: 'String', default: '' },
     address1: { type: 'String', default: '' },
     address2: { type: 'String', default: '' },
-    province: { type: Schema.Types.ObjectId, ref: 'province' },
-    city: { type: Schema.Types.ObjectId, ref: 'city' },
+    province: { type: Schema.Types.ObjectId, ref: 'province', default: null },
+    city: { type: Schema.Types.ObjectId, ref: 'city',  default: null },
     zipcode: { type: 'String', default: '' },            
+    rank: { type: Number, default: 0 },
     status: { type: Number, default: 0 },
+    paymethod: { type: Schema.Types.ObjectId, ref: 'payment_method' },    
+    accountno: { type: 'String' },
+    accountname: { type: 'String' },
+    pmcontactno: { type: 'String' },
     isCd: { type: Boolean, default: false },
-    cdPaid: { type: Boolean, default: false },               
+    cdPaid: { type: Boolean, default: false },        
+    isPILock: { type: Boolean, default: false },       
+    isAddLock: { type: Boolean, default: false },       
+    isPayLock: { type: Boolean, default: false },       
 }, { toJSON: { virtuals: true } });
 
 memberSchema.virtual('value').get(function () {
@@ -43,3 +51,9 @@ memberSchema.virtual('label').get(function () {
 export default mongoose.models.member || mongoose.model("member", memberSchema);
 
 
+// rank
+// 0 - Member
+// 1 - Supervisor
+// 2 - Manager
+// 3 - Director
+// 4 - Ambassador

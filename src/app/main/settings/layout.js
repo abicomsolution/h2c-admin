@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { interFont } from '../layout';
 import Tab from "@/components/Tab";
 
-export default function CodeLayout({ children }) {
+export default function SettingsLayout({ children }) {
 
     return (
         <div className={`${interFont.className} w-full px-6`}>
@@ -17,6 +17,7 @@ export default function CodeLayout({ children }) {
                 </div>
 
                 {children}
+                
             </div>
 
         </div>

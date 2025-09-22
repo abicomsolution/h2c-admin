@@ -120,15 +120,15 @@ export default function Codes(props) {
 
   
     return (
-        <div className="mt-6 px-2">            
-           <div className="md:flex justify-between">
-                <div className="flex gap-4">
-                    <Datepicker />
-                    <Datepicker />
-                </div>
+        <div className="mt-4 px-2">            
+           <div className="md:flex justify-between">                
                 <div className="mt-4 md:mt-0 md:flex gap-2">
                     <PrimaryBtn type="button" onClick={handleGen} >Generate Codes</PrimaryBtn>
                     <PrimaryBtn type="button" onClick={handleSend} >Send Codes</PrimaryBtn>
+                </div>
+                <div className="flex gap-4">
+                    {/* <Datepicker />
+                    <Datepicker /> */}
                 </div>
            </div>
            <Generate showGenerate={showGenerate} setshowGenerate={setshowGenerate} onCloseSuccess={handleGenSuccess}/>

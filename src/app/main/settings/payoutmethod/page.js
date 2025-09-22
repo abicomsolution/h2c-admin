@@ -163,11 +163,12 @@ export default function PayoutMethod(props) {
     return (
         <div className="mt-6 px-2">          
             <div className="md:flex justify-between">
-                <div className="flex gap-4">
-                    
-                </div>
+               
                 <div className="mt-4 md:mt-0 md:flex gap-2">
-                    <PrimaryBtn type="button" onClick={handleAdd} >Add New</PrimaryBtn>                    
+                    <PrimaryBtn type="button" onClick={handleAdd} >Add New Payout Method</PrimaryBtn>                    
+                </div>
+                 <div className="flex gap-4">
+                    
                 </div>
             </div>  
              <div className='mt-4'>

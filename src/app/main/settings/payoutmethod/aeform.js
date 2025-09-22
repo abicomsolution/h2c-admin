@@ -99,7 +99,7 @@ function AEForm(props) {
     }
 
     let content =  <ModalBody>              
-                        <ModalHeader className='border-b-gray-200 pl-0'>Add Payout Method</ModalHeader>
+                        <ModalHeader className='border-b-gray-200 pl-0'>{bEdit?"Edit":"Add"} Payout Method</ModalHeader>
                         {errorBox}
                         <div className='mt-6'>
                             <label htmlFor="username" className="md:text-lg font-medium block mb-4">Name</label>
