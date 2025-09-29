@@ -32,7 +32,7 @@ export const GET = async (request, context) => {
   
     try {   
 
-        data.member = await Member.countDocuments({activated: true, usertype: 0})
+        data.member = await Member.countDocuments({activated: true})
         data.usedcodes = await Code.countDocuments({status: 1, isCD: false})
         data.unused_codes = await Code.countDocuments({status: 0, isCD: false})
         data.cd_codes = await Code.countDocuments({isCD: true})
