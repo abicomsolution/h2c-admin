@@ -123,7 +123,7 @@ function MainLayout(props) {
                                         onClick={() => setUserMenuOpen((prev) => !prev)}>
                                         <div className='flex gap-2'>
                                             <CircleUserRound className="h-6 w-6" />
-                                            <span>John</span>
+                                            <span>Admin</span>
                                             <ChevronDown className="h-4 w-4 mt-1" />
                                         </div>                                            
                                 </button>                                

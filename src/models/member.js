@@ -38,7 +38,8 @@ const memberSchema = new Schema({
     cdPaid: { type: Boolean, default: false },        
     isPILock: { type: Boolean, default: false },       
     isAddLock: { type: Boolean, default: false },       
-    isPayLock: { type: Boolean, default: false },       
+    isPayLock: { type: Boolean, default: false },   
+    usertype: { type: Number, default: 0 }
 }, { toJSON: { virtuals: true } });
 
 memberSchema.virtual('value').get(function () {

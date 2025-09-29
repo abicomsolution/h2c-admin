@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import SessionProvider from "@/provider/SessionProvider"
 import "./globals.css";
 import "./main.css"
+import "./genealogy.css"
 
 export const metadata = {
   title: "Helping Hands Community - Admin",
