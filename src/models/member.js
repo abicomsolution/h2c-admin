@@ -39,7 +39,9 @@ const memberSchema = new Schema({
     isPILock: { type: Boolean, default: false },       
     isAddLock: { type: Boolean, default: false },       
     isPayLock: { type: Boolean, default: false },   
-    usertype: { type: Number, default: 0 }
+    usertype: { type: Number, default: 0 },
+    isHub: { type: Boolean, default: false },
+    hubtype: { type: Number, default: 0 }   
 }, { toJSON: { virtuals: true } });
 
 memberSchema.virtual('value').get(function () {

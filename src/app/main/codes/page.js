@@ -17,22 +17,43 @@ export default function Codes(props) {
 
     const [showGenerate, setshowGenerate] = useState(false)
     const [showSend, setshowSend] = useState(false)
-    const { data: session, status } = useSession();
+ 
+    const session = useSession()
+    const [initialized, setinitialized] = useState(false) 
 
     const router = useRouter();
     const [codes, setcodes] = useState([]);
     const [loadstate, setloadstate] = useState("")
         
 
-    useEffect(() => {
+    // useEffect(() => {
         
-        if (status === "unauthenticated") {
+    //     if (status === "unauthenticated") {
+    //         router.replace("/login");
+    //     }else if (status === "authenticated") {               
+    //         init()        
+    //     }
+    
+    // }, [status, session, router]);
+
+      useEffect(() => {
+    
+        if (session.status === "unauthenticated") {
             router.replace("/login");
-        }else if (status === "authenticated") {               
-            init()        
+        }else if (session.status=="authenticated"){                 
+            setinitialized(true)                
         }
     
-    }, [status, session, router]);
+    }, [session])
+
+
+    useEffect(() => {
+        
+      if (initialized){        
+          init()   
+      }
+      
+    }, [initialized])
 
 
     const init = async ()=>{
