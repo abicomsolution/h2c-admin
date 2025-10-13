@@ -14,6 +14,7 @@ import { createPortal } from 'react-dom';
 import ConfirmHub from '../members/confirmHub';
 import toast, { Toaster } from 'react-hot-toast';
 import { HUBTYPE } from '@/utils/constants';
+import ConfirmUpgrade from './confirmUpgrade';
 
 export default function Members(props) {
 
@@ -26,6 +27,7 @@ export default function Members(props) {
     const [search, setsearch] = useState("")
     const [showPromoteHub, setshowPromoteHub] = useState(false)
     const [selectedMember, setselectedMember] = useState(null)
+    const [showConfirmUpgrade, setShowConfirmUpgrade] = useState(false)
     
     useEffect(() => {
     
@@ -98,6 +100,11 @@ export default function Members(props) {
         
     }
 
+    const handleConfirmUpgrade = ()=>{
+        setShowConfirmUpgrade(false)
+        toast.success('Member successfully upgraded to Paid!')
+        searchNow(search)
+    }
 
     useEffect(()=>{
         const delayDebounceFn = setTimeout(() => {
@@ -141,6 +148,13 @@ export default function Members(props) {
          
         }
 
+        const handleUpgradeToPaid = (row)=>{
+            setselectedMember(row)
+            setOpen(false)
+            setShowConfirmUpgrade(true)
+        }
+
+        console.log("selectedMember", row)
         // Close dropdown on outside click, but not when clicking inside the dropdown
         React.useEffect(() => {
             if (!open) return;
@@ -166,6 +180,10 @@ export default function Members(props) {
             >
                 <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100"  onClick={()=>handleGo("/main/profile?id="+row._id)}>Edit Profile</button>
                 <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" onClick={()=>handlePromoteHub(row)}>Promote to Hub</button>
+                {
+                    row.isCd && !row.cdPaid && <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" onClick={()=>handleUpgradeToPaid(row)}>Upgrade to Paid</button>
+                }
+                
                 <button className="block w-full text-left text-gray-300 font-medium px-4 py-2 hover:bg-gray-100">Suspend</button>                
             </div>
         );
@@ -285,6 +303,7 @@ export default function Members(props) {
                 </div>
             </div>        
             <ConfirmHub showConfirm={showPromoteHub} setshowConfirm={setshowPromoteHub} onYes={handleConfirmHub} selectedMember={selectedMember}/>   
+            <ConfirmUpgrade showConfirm={showConfirmUpgrade} setshowConfirm={setShowConfirmUpgrade} onYes={handleConfirmUpgrade} selectedMember={selectedMember}/>   
             <Toaster position="top-center" reverseOrder={false}/>
         </div>
     )

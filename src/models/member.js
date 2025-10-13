@@ -38,10 +38,12 @@ const memberSchema = new Schema({
     cdPaid: { type: Boolean, default: false },        
     isPILock: { type: Boolean, default: false },       
     isAddLock: { type: Boolean, default: false },       
-    isPayLock: { type: Boolean, default: false },   
-    usertype: { type: Number, default: 0 },
+    isPayLock: { type: Boolean, default: false },    
+    usertype: { type: Number, default: 0 },   
     isHub: { type: Boolean, default: false },
-    hubtype: { type: Number, default: 0 }   
+    hubtype: { type: Number, default: 0 },
+    isUpgraded: { type: Boolean, default: false },
+    date_upgraded: { type: Date, default: null }
 }, { toJSON: { virtuals: true } });
 
 memberSchema.virtual('value').get(function () {
@@ -53,6 +55,9 @@ memberSchema.virtual('label').get(function () {
 
 export default mongoose.models.member || mongoose.model("member", memberSchema);
 
+//hubtype
+// 1 - Municipal Hub
+// 2 - City Hub
 
 // rank
 // 0 - Member
