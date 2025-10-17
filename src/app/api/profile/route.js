@@ -21,6 +21,8 @@ export const POST = async (request) => {
         data.profile = await Member.findById(body.id)
                             .populate("province")
                             .populate("city")
+                            .populate("hub_province")
+                            .populate("hub_city")
                             .populate("paymethod")
 
         data.provinces = await Provinces.find()

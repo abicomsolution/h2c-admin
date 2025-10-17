@@ -43,7 +43,9 @@ const memberSchema = new Schema({
     isHub: { type: Boolean, default: false },
     hubtype: { type: Number, default: 0 },
     isUpgraded: { type: Boolean, default: false },
-    date_upgraded: { type: Date, default: null }
+    date_upgraded: { type: Date, default: null },
+    hub_province: { type: Schema.Types.ObjectId, ref: 'province', default: null },    
+    hub_city: { type: Schema.Types.ObjectId, ref: 'city',  default: null }
 }, { toJSON: { virtuals: true } });
 
 memberSchema.virtual('value').get(function () {

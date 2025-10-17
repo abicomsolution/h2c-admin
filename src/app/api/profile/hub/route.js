@@ -6,17 +6,16 @@ export const POST = async (request) => {
 
     var body =  await request.json();
 
-    // console.log(body)
+    console.log(body)
 
     try {       
 
         await connect()    
 
-        let params = {
-           isHub: true,
+        let params = {       
            hubtype: body.hubtype,
-           hub_province: body.province,           
-           hub_city: body.hubtype!=2 ? body.citym : null  
+           hub_province: body.hub_province,           
+           hub_city: body.hubtype!=2 ? body.hub_city : null  
         }
         
         await Member.findByIdAndUpdate(body.id, params)

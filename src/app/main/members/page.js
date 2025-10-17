@@ -154,7 +154,7 @@ export default function Members(props) {
             setShowConfirmUpgrade(true)
         }
 
-        console.log("selectedMember", row)
+        // console.log("selectedMember", row)
         // Close dropdown on outside click, but not when clicking inside the dropdown
         React.useEffect(() => {
             if (!open) return;

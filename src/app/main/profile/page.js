@@ -10,7 +10,7 @@ import { TUSER } from '@/utils/constants';
 import PreLoader from '@/components/preloader';
 import UserPic from '../../../assets/no_photo.png'
 import PrimaryBtn from '@/components/primaryBtn';
-import { Datepicker } from "flowbite-react";
+import { Datepicker,  Label, Radio   } from "flowbite-react";
 import { TriangleAlert, ArrowLeft } from "lucide-react";
 import { validateEmail } from '@/utils/functions';
 import toast, { Toaster } from 'react-hot-toast';
@@ -66,6 +66,13 @@ const tmpForm4 = {
     confirmpass: "",    
 }
 
+const tmpForm5 = {
+    isHub: false,
+    hubtype: 0,
+    hub_province: null,    
+    hub_city: null
+}
+
 export default function Profile() {
 
     const session = useSession()
@@ -94,6 +101,11 @@ export default function Profile() {
     const [card, setcard] = useState(0)
     const [beneficiaries, setBeneficiaries] = useState([])
     const [paramId, setparamId] = useState("")
+
+    const [formdata5, setForm5] = useState(tmpForm5)
+    const [saveState5, setSaveState5] = useState("")  
+    const [filteredHubCities, setFilteredHubCities] = useState([]) 
+    
   
 
     useEffect(() => {
@@ -124,6 +136,14 @@ export default function Profile() {
 		})
 
 		setFilteredCities(newCities);
+	}
+
+     const filterHubCities=(selectedProv, cities, type)=>{
+		var newCities = cities.filter((obj)=>{
+			return obj.province==selectedProv.value && obj?.city==type
+		})
+
+		setFilteredHubCities(newCities);
 	}
 
     const init = async (id)=>{
@@ -173,8 +193,21 @@ export default function Profile() {
                 }
                 setForm3(newForm3)
                 setForm4(tmpForm4)
-                setpm(ret.data.pm)
-                
+
+                let newForm5 = {
+                    isHub: ret.data.profile.isHub,
+                    hubtype: ret.data.profile.hubtype,
+                    hub_province: ret.data.profile.hub_province,
+                    hub_city: ret.data.profile.hub_city
+                }
+                if (ret.data.profile.hub_province){
+                    if (ret.data.profile.hubtype!=2){
+                        filterHubCities(ret.data.profile.hub_province, ret.data.cities, ret.data.profile.hubtype)
+                    }
+                }
+                setForm5(newForm5)
+
+                setpm(ret.data.pm)                
                 setloadstate("success")
             }else{              
                 setloadstate("")
@@ -186,7 +219,6 @@ export default function Profile() {
         }
         
     }
-
 
     const handleSave = async ()=>{
         setcard(0)
@@ -338,6 +370,47 @@ export default function Profile() {
         }
     }
 
+
+    const handleSave5 = async ()=>{
+        setcard(5)
+        if (formdata5.hub_province == null) {
+            setSaveState5("failed")  
+            setErrorMessage("Please choose province!")
+         }else if (formdata5.hubtype!==2 && !formdata5.hub_city){
+            setSaveState5("failed")  
+            setErrorMessage(formdata5.hubtype===1 ? "Please select city." : "Please select municipality.")
+        }else{
+            try{  
+                setSaveState5("saving")  
+                let params = {...formdata5, 
+                    id: paramId                   
+                }
+                console.log(params)
+                const ret =  await callApi("/profile/hub", "POST", params) 
+                if (ret.status==200){                                
+                    setSaveState5("success")      
+                    toast.success('Hub information changes successfully saved!')
+                    init(paramId)
+                }else{
+                    setSaveState5("failed")
+                    setErrorMessage(ret.message)
+                }
+                // // console.log(formd)
+                // setSaveState5("saving")      
+                // setTimeout(() => {
+                //     setSaveState5("success")      
+                //     toast.success('Hub information changes successfully saved!')
+                //     init(paramId)
+                // }, 3000);   
+
+            }catch(err){
+                setSaveState5("failed")
+                console.log(err)                
+            }
+        }
+       
+    }
+
     const handleSave3 = async ()=>{
         setcard(2)
         setshowConfirm(true)
@@ -392,17 +465,41 @@ export default function Profile() {
         setSaveState2("")
         setSaveState3("")
         setSaveState4("")
+        setSaveState5("")
         setErrorMessage("")
         setForm2({ ...formdata2, province: e, city: null })
         filterCities(e, cities)
     }
 
+    const handleHubChangeProv = (e)=>{
+        setSaveState("")
+        setSaveState2("")
+        setSaveState3("")
+        setSaveState4("")
+        setSaveState5("")
+        setErrorMessage("")
+        setForm5({ ...formdata5, hub_province: e, hub_city: null })
+        if (formdata5.hubtype!=2){
+            filterHubCities(e, cities, formdata5.hubtype)
+        }        
+    }
+
+    const handleChangeHubCity = (e)=>{
+        setSaveState("")
+        setSaveState2("")
+        setSaveState3("")
+        setSaveState4("")
+        setSaveState5("")
+        setErrorMessage("")
+        setForm5({ ...formdata5, hub_city: e })
+    }
 
     const handleChangeCity = (e)=>{
         setSaveState("")
         setSaveState2("")
         setSaveState3("")
         setSaveState4("")
+        setSaveState5("")
         setErrorMessage("")
         setForm2({ ...formdata2, city: e })
     }
@@ -412,6 +509,7 @@ export default function Profile() {
         setSaveState2("")
         setSaveState3("")
         setSaveState4("")
+        setSaveState5("")
         setErrorMessage("")
         setForm({ ...formdata, [e.target.name]: e.target.value })
     }
@@ -421,6 +519,7 @@ export default function Profile() {
         setSaveState2("")
         setSaveState3("")
         setSaveState4("")
+        setSaveState5("")
         setErrorMessage("")
         setForm({ ...formdata, 
             birthdate: e
@@ -432,6 +531,7 @@ export default function Profile() {
         setSaveState2("")
         setSaveState3("")
         setSaveState4("")
+        setSaveState5("")
         setErrorMessage("")
         if (e.target.files.length>0){
             const pho = await readFile(e.target.files[0])
@@ -446,6 +546,7 @@ export default function Profile() {
         setSaveState2("")
         setSaveState3("")
         setSaveState4("")
+        setSaveState5("")
         setErrorMessage("")
         setForm2({ ...formdata2, [e.target.name]: e.target.value })
     }
@@ -455,6 +556,7 @@ export default function Profile() {
         setSaveState2("")
         setSaveState3("")
         setSaveState4("")
+        setSaveState5("")
         setErrorMessage("")
         setForm3({ ...formdata3, [e.target.name]: e.target.value })
     }
@@ -464,6 +566,7 @@ export default function Profile() {
         setSaveState2("")
         setSaveState3("")
         setSaveState4("")
+        setSaveState5("")
         setErrorMessage("")
         setForm4({ ...formdata4, [e.target.name]: e.target.value })
     }
@@ -481,6 +584,7 @@ export default function Profile() {
         setSaveState2("")
         setSaveState3("")
         setSaveState4("")
+        setSaveState5("")
         setErrorMessage("")
         setForm3({ ...formdata3, paymethod: e })
     }
@@ -499,6 +603,18 @@ export default function Profile() {
     const handleBeneficiarySaved = ()=>{
         window.location.reload();
     }
+
+    const handChangeType = (i)=>{
+        setSaveState("")
+        setSaveState2("")
+        setSaveState3("")
+        setSaveState4("")
+        setSaveState5("")
+        setErrorMessage("")
+        setForm5({ ...formdata5, hubtype: i, hub_province: null, hub_city: null })
+
+    }
+
 
     const readFile = (img) => {
         return new Promise((res) => {
@@ -675,6 +791,54 @@ export default function Profile() {
                                <PrimaryBtn type="button"  onClick={handleSave3}  isLoading={saveState3==="saving"}>Save Changes</PrimaryBtn>                                  
                             </div>
                         </div>
+
+                        {
+                            formdata5.isHub && <div className='bg-white rounded-xl  p-8'>
+                                <div className="border-b border-dotted border-gray-300 pb-3">
+                                    <h3 className="font-semibold text-xl text-[#707a91]">Hub Information</h3>                         
+                                </div>
+                                { saveState5=="failed" && errorBox}
+                                <div className='space-y-5 mt-6'>
+                                    <div>
+                                        <label className="md:text-lg font-medium block text-[#404758] mb-4">Hub Type <span className='text-red-500 text-xs'>*</span> </label>
+                                        <div className='flex gap-6 ml-5 mb-4'>
+                                            <div className="flex items-center gap-2">
+                                                <Radio id="ewallet" name="tpe" value={0} checked={formdata5.hubtype===0} onChange={()=>handChangeType(0)}/>
+                                                <Label htmlFor="ewallet" className='md:text-lg font-medium'>Municipal Hub </Label>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Radio id="city" name="tpe" value={1} checked={formdata5.hubtype===1} onChange={()=>handChangeType(1)}/>
+                                                <Label htmlFor="city" className='md:text-lg font-medium'>City Hub</Label>
+                                            </div>        
+                                            <div className="flex items-center gap-2">
+                                                <Radio id="province" name="tpe" value={2} checked={formdata5.hubtype===2} onChange={()=>handChangeType(2)}/>
+                                                <Label htmlFor="province" className='md:text-lg font-medium'>Provincial Hub</Label>
+                                            </div>               
+                                        </div>
+                                    </div>
+                                                                    
+                                    <div className='space-y-2 md:grid grid-cols-2 gap-4'>
+                                        <div>
+                                            <label className="md:text-lg font-medium block text-[#404758] mb-4">Province <span className='text-red-500 text-xs'>*</span> </label>
+                                            <Select  isClearable={true} menuPortalTarget={typeof document !== "undefined" ? document.body : null} styles={controlStyle} options={provinces} value={formdata5.hub_province}   onChange={handleHubChangeProv} />                            
+                                        </div>
+                                        {
+                                            formdata5.hubtype!=2 &&  <div>
+                                                <label className="md:text-lg font-medium block text-[#404758] mb-4">{formdata5.hubtype===1 ? "City" : "Municipality"} <span className='text-red-500 text-xs'>*</span> </label>
+                                                <Select  isClearable={true} menuPortalTarget={typeof document !== "undefined" ? document.body : null} styles={controlStyle} options={filteredHubCities} value={formdata5.hub_city}   onChange={handleChangeHubCity} />                            
+                                            </div>
+                                        }
+                                       
+
+                                    </div>
+                                                        
+                                </div>
+                                <div className='py-4 mt-4'>
+                                    <PrimaryBtn type="button"  onClick={handleSave5}  isLoading={saveState5==="saving"}>Save Changes</PrimaryBtn>          
+                                </div>
+                            </div>
+                        }
+                         
                     </div>
                     <div className='space-y-5'>
                         <div className='bg-white rounded-xl  p-6'>
@@ -721,6 +885,7 @@ export default function Profile() {
                                 <PrimaryBtn type="button"  onClick={handleSave2}  isLoading={saveState2==="saving"}>Save Changes</PrimaryBtn>          
                             </div>
                         </div>
+
                         <div className='bg-white rounded-xl p-8'>
                             <div className="border-b border-dotted border-gray-300 pb-3">
                                 <h3 className="font-semibold text-xl text-[#707a91]">Change Password</h3>                                                 
@@ -776,6 +941,7 @@ export default function Profile() {
                                 <PrimaryBtn type="button"  onClick={handleSave4}  isLoading={saveState4==="saving"}>Save Changes</PrimaryBtn>          
                             </div>
                         </div>
+
                         <Beneficiary onSaved={handleBeneficiarySaved} paramId={paramId} beneficiaries={beneficiaries}/>
                         <Confirm showConfirm={showConfirm} setshowConfirm={setshowConfirm} onYes={handleYes} card={card}/>                      
                     </div>

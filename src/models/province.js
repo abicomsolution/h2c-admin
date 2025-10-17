@@ -2,11 +2,10 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const provinceSchema = new Schema({
-    _id: { type: Schema.Types.ObjectId},
-    value: { type: 'String'},
-    label: { type: 'String'},      
-    region: { type: 'String'}
+const provinceSchema = new Schema({ 
+    value: { type: 'String', default: "" },  
+    label: { type: 'String', default: "" },      
+    region: { type: 'String', default: "" }
 });
 
 export default mongoose.models.province || mongoose.model("province", provinceSchema);

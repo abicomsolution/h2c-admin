@@ -1,0 +1,598 @@
+[
+ {
+   "name": "Caloocan",
+   "class": "HUC"
+ },
+ {
+   "name": "Las Piñas",
+   "class": "HUC"
+ },
+ {
+   "name": "Makati",
+   "class": "HUC"
+ },
+ {
+   "name": "Malabon",
+   "class": "HUC"
+ },
+ {
+   "name": "Mandaluyong",
+   "class": "HUC"
+ },
+ {
+   "name": "Manila",
+   "class": "HUC"
+ },
+ {
+   "name": "Marikina",
+   "class": "HUC"
+ },
+ {
+   "name": "Muntinlupa",
+   "class": "HUC"
+ },
+ {
+   "name": "Navotas",
+   "class": "HUC"
+ },
+ {
+   "name": "Parañaque",
+   "class": "HUC"
+ },
+ {
+   "name": "Pasay",
+   "class": "HUC"
+ },
+ {
+   "name": "Pasig",
+   "class": "HUC"
+ },
+ {
+   "name": "Quezon",
+   "class": "HUC"
+ },
+ {
+   "name": "San Juan",
+   "class": "HUC"
+ },
+ {
+   "name": "Taguig",
+   "class": "HUC"
+ },
+ {
+   "name": "Valenzuela",
+   "class": "HUC"
+ },
+ {
+   "name": "Tabuk ",
+   "class": "CC"
+ },
+ {
+   "name": "Baguio",
+   "class": "HUC"
+ },
+ {
+   "name": "Batac",
+   "class": "CC"
+ },
+ {
+   "name": "Laoag ",
+   "class": "CC"
+ },
+ {
+   "name": "Candon",
+   "class": "CC"
+ },
+ {
+   "name": "Vigan ",
+   "class": "CC"
+ },
+ {
+   "name": "San Fernando ",
+   "class": "CC"
+ },
+ {
+   "name": "Alaminos",
+   "class": "CC"
+ },
+ {
+   "name": "Dagupan",
+   "class": "ICC"
+ },
+ {
+   "name": "San Carlos",
+   "class": "CC"
+ },
+ {
+   "name": "Urdaneta",
+   "class": "CC"
+ },
+ {
+   "name": "Tuguegarao ",
+   "class": "CC"
+ },
+ {
+   "name": "Cauayan",
+   "class": "CC"
+ },
+ {
+   "name": "Ilagan ",
+   "class": "CC"
+ },
+ {
+   "name": "Santiago",
+   "class": "ICC"
+ },
+ {
+   "name": "Balanga ",
+   "class": "CC"
+ },
+ {
+   "name": "Baliuag",
+   "class": "CC"
+ },
+ {
+   "name": "Malolos ",
+   "class": "CC"
+ },
+ {
+   "name": "Meycauayan",
+   "class": "CC"
+ },
+ {
+   "name": "San Jose Del Monte",
+   "class": "CC"
+ },
+ {
+   "name": "Cabanatuan",
+   "class": "CC"
+ },
+ {
+   "name": "Gapan",
+   "class": "CC"
+ },
+ {
+   "name": "Muñoz",
+   "class": "CC"
+ },
+ {
+   "name": "Palayan ",
+   "class": "CC"
+ },
+ {
+   "name": "San Jose",
+   "class": "CC"
+ },
+ {
+   "name": "Mabalacat",
+   "class": "CC"
+ },
+ {
+   "name": "San Fernando ",
+   "class": "CC"
+ },
+ {
+   "name": "Tarlac ",
+   "class": "CC"
+ },
+ {
+   "name": "Angeles",
+   "class": "HUC"
+ },
+ {
+   "name": "Olongapo",
+   "class": "HUC"
+ },
+ {
+   "name": "Batangas ",
+   "class": "CC"
+ },
+ {
+   "name": "Calaca",
+   "class": "CC"
+ },
+ {
+   "name": "Lipa",
+   "class": "CC"
+ },
+ {
+   "name": "Santo Tomas",
+   "class": "CC"
+ },
+ {
+   "name": "Tanauan",
+   "class": "CC"
+ },
+ {
+   "name": "Bacoor",
+   "class": "CC"
+ },
+ {
+   "name": "Carmona",
+   "class": "CC"
+ },
+ {
+   "name": "Cavite",
+   "class": "CC"
+ },
+ {
+   "name": "Dasmariñas",
+   "class": "CC"
+ },
+ {
+   "name": "General Trias",
+   "class": "CC"
+ },
+ {
+   "name": "Imus",
+   "class": "CC"
+ },
+ {
+   "name": "Tagaytay",
+   "class": "CC"
+ },
+ {
+   "name": "Trece Martires ",
+   "class": "CC"
+ },
+ {
+   "name": "Biñan",
+   "class": "CC"
+ },
+ {
+   "name": "Cabuyao",
+   "class": "CC"
+ },
+ {
+   "name": "Calamba",
+   "class": "CC"
+ },
+ {
+   "name": "San Pablo",
+   "class": "CC"
+ },
+ {
+   "name": "San Pedro",
+   "class": "CC"
+ },
+ {
+   "name": "Santa Rosa",
+   "class": "CC"
+ },
+ {
+   "name": "Tayabas",
+   "class": "CC"
+ },
+ {
+   "name": "Antipolo ",
+   "class": "CC"
+ },
+ {
+   "name": "Lucena ",
+   "class": "HUC"
+ },
+ {
+   "name": "Calapan ",
+   "class": "CC"
+ },
+ {
+   "name": "Puerto Princesa ",
+   "class": "HUC"
+ },
+ {
+   "name": "Legazpi ",
+   "class": "CC"
+ },
+ {
+   "name": "Ligao",
+   "class": "CC"
+ },
+ {
+   "name": "Tabaco",
+   "class": "CC"
+ },
+ {
+   "name": "Iriga",
+   "class": "CC"
+ },
+ {
+   "name": "Naga",
+   "class": "ICC"
+ },
+ {
+   "name": "Masbate ",
+   "class": "CC"
+ },
+ {
+   "name": "Sorsogon ",
+   "class": "CC"
+ },
+ {
+   "name": "Roxas ",
+   "class": "CC"
+ },
+ {
+   "name": "Passi",
+   "class": "CC"
+ },
+ {
+   "name": "Iloilo ",
+   "class": "HUC"
+ },
+ {
+   "name": "Bago",
+   "class": "CC"
+ },
+ {
+   "name": "Cadiz",
+   "class": "CC"
+ },
+ {
+   "name": "Escalante",
+   "class": "CC"
+ },
+ {
+   "name": "Himamaylan",
+   "class": "CC"
+ },
+ {
+   "name": "Kabankalan",
+   "class": "CC"
+ },
+ {
+   "name": "La Carlota",
+   "class": "CC"
+ },
+ {
+   "name": "Sagay",
+   "class": "CC"
+ },
+ {
+   "name": "San Carlos",
+   "class": "CC"
+ },
+ {
+   "name": "Silay",
+   "class": "CC"
+ },
+ {
+   "name": "Sipalay",
+   "class": "CC"
+ },
+ {
+   "name": "Talisay",
+   "class": "CC"
+ },
+ {
+   "name": "Victorias",
+   "class": "CC"
+ },
+ {
+   "name": "Bais",
+   "class": "CC"
+ },
+ {
+   "name": "Bayawan",
+   "class": "CC"
+ },
+ {
+   "name": "Canlaon",
+   "class": "CC"
+ },
+ {
+   "name": "Dumaguete ",
+   "class": "CC"
+ },
+ {
+   "name": "Guihulngan",
+   "class": "CC"
+ },
+ {
+   "name": "Tanjay",
+   "class": "CC"
+ },
+ {
+   "name": "Bacolod ",
+   "class": "HUC"
+ },
+ {
+   "name": "Tagbilaran ",
+   "class": "CC"
+ },
+ {
+   "name": "Bogo",
+   "class": "CC"
+ },
+ {
+   "name": "Carcar",
+   "class": "CC"
+ },
+ {
+   "name": "Danao",
+   "class": "CC"
+ },
+ {
+   "name": "Naga",
+   "class": "CC"
+ },
+ {
+   "name": "Talisay",
+   "class": "CC"
+ },
+ {
+   "name": "Toledo",
+   "class": "CC"
+ },
+ {
+   "name": "Cebu ",
+   "class": "HUC"
+ },
+ {
+   "name": "Lapu-Lapu",
+   "class": "HUC"
+ },
+ {
+   "name": "Mandaue",
+   "class": "HUC"
+ },
+ {
+   "name": "Borongan ",
+   "class": "CC"
+ },
+ {
+   "name": "Baybay",
+   "class": "CC"
+ },
+ {
+   "name": "Ormoc",
+   "class": "ICC"
+ },
+ {
+   "name": "Calbayog",
+   "class": "CC"
+ },
+ {
+   "name": "Catbalogan ",
+   "class": "CC"
+ },
+ {
+   "name": "Maasin ",
+   "class": "CC"
+ },
+ {
+   "name": "Tacloban ",
+   "class": "HUC"
+ },
+ {
+   "name": "Dapitan",
+   "class": "CC"
+ },
+ {
+   "name": "Dipolog ",
+   "class": "CC"
+ },
+ {
+   "name": "Pagadian ",
+   "class": "CC"
+ },
+ {
+   "name": "Isabela",
+   "class": "CC"
+ },
+ {
+   "name": "Zamboanga",
+   "class": "HUC"
+ },
+ {
+   "name": "Malaybalay ",
+   "class": "CC"
+ },
+ {
+   "name": "Valencia",
+   "class": "CC"
+ },
+ {
+   "name": "Oroquieta ",
+   "class": "CC"
+ },
+ {
+   "name": "Ozamiz",
+   "class": "CC"
+ },
+ {
+   "name": "Tangub",
+   "class": "CC"
+ },
+ {
+   "name": "El Salvador",
+   "class": "CC"
+ },
+ {
+   "name": "Gingoog",
+   "class": "CC"
+ },
+ {
+   "name": "Cagayan De Oro ",
+   "class": "HUC"
+ },
+ {
+   "name": "Iligan",
+   "class": "HUC"
+ },
+ {
+   "name": "Panabo",
+   "class": "CC"
+ },
+ {
+   "name": "Samal",
+   "class": "CC"
+ },
+ {
+   "name": "Tagum ",
+   "class": "CC"
+ },
+ {
+   "name": "Digos ",
+   "class": "CC"
+ },
+ {
+   "name": "Mati ",
+   "class": "CC"
+ },
+ {
+   "name": "Davao",
+   "class": "HUC"
+ },
+ {
+   "name": "Kidapawan ",
+   "class": "CC"
+ },
+ {
+   "name": "Koronadal ",
+   "class": "CC"
+ },
+ {
+   "name": "Tacurong",
+   "class": "CC"
+ },
+ {
+   "name": "General Santos",
+   "class": "HUC"
+ },
+ {
+   "name": "Cabadbaran",
+   "class": "CC"
+ },
+ {
+   "name": "Bayugan",
+   "class": "CC"
+ },
+ {
+   "name": "Surigao ",
+   "class": "CC"
+ },
+ {
+   "name": "Bislig",
+   "class": "CC"
+ },
+ {
+   "name": "Tandag ",
+   "class": "CC"
+ },
+ {
+   "name": "Butuan ",
+   "class": "HUC"
+ },
+ {
+   "name": "Lamitan ",
+   "class": "CC"
+ },
+ {
+   "name": "Marawi ",
+   "class": "CC"
+ },
+ {
+   "name": "Cotabato",
+   "class": "ICC"
+ }
+]

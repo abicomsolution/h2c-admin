@@ -2,11 +2,10 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
-const citySchema = new Schema({    
-    _id: { type: Schema.Types.ObjectId},
-    label: { type: 'String'},      
-    province: { type: 'String'},
-    city: Number
+const citySchema = new Schema({      
+    label: { type: 'String', default: "" },  
+    province: { type: 'String', default: "" },
+    city: { type: Number, default: 0 }
 }, {toJSON: { virtuals: true }});
 
 citySchema.virtual('value').get(function(){

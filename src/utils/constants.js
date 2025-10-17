@@ -6,7 +6,7 @@ export const RANKS = [
     { label: "Ambassador", color: "#9933ff", maxlevel: 10  }
 ]
 
-export const HUBTYPE = [ "Municipal Hub", "City Hub"]
+export const HUBTYPE = [ "Municipal Hub", "City Hub", "Provincial Hub"]
 export const H2C_TOPUP = 300
 export const DIRECT_REFERRAL = 500
 export const STAIRSTEP_ALLOC = 100
