@@ -4,7 +4,6 @@ import connect from "@/utils/db";
 import { activate } from "../../genealogy/activateFunc";
 import MemberBeneficiary from "@/models/member_beneficiary";
 
-
 export const POST = async (request) => {
 
     var body =  await request.json();
@@ -21,6 +20,8 @@ export const POST = async (request) => {
             var _err = { name: "Please complete member address/province/city/zipcode in your profile."};          
             return NextResponse.json(_err, { status: 500 });        
         }
+
+
 
         let cMB = await MemberBeneficiary.countDocuments({ member_id: body.id })
         if (cMB==0){

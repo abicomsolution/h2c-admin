@@ -104,9 +104,11 @@ function ConfirmHub(props) {
                 onYes()
             }else{              
                 setErrorMessage(ret.message || "Error occurred. Please try again.")
+                setPromoteState("failed")
             }                        
         }catch(err){
             setErrorMessage("Error occurred. Please try again.")
+            setPromoteState("failed")
         }        
     }
 

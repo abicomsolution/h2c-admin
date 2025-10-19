@@ -19,6 +19,10 @@ const earningSchema = new Schema({
     royalty_transferred: { type: Number, default: 0 },
     royalty_balance: { type: Number, default: 0 },
 
+    hubroyalty: { type: Number, default: 0 },
+    hubroyalty_transferred: { type: Number, default: 0 },
+    hubroyalty_balance: { type: Number, default: 0 },
+
     unilevel_transferred: { type: Number, default: 0 },
     unilevel_balance: { type: Number, default: 0 },
 
