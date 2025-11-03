@@ -84,23 +84,7 @@ export default function Product(props) {
     const handleChange = (e)=>{
         setsearch(e.target.value)
     }
-
     
-    const handleConfirmHub = ()=>{
-        setshowPromoteHub(false)
-        toast.success('Member successfully promoted to Hub!')
-        setTimeout(() => {
-            window.location.reload();    
-        }, 2000);
-        
-    }
-
-    const handleConfirmUpgrade = ()=>{
-        setShowConfirmUpgrade(false)
-        toast.success('Member successfully upgraded to Paid!')
-        searchNow(search)
-    }
-
     useEffect(()=>{
         const delayDebounceFn = setTimeout(() => {
             // Send Axios request here
@@ -143,10 +127,8 @@ export default function Product(props) {
          
         }
 
-        const handleUpgradeToPaid = (row)=>{
-            // setselectedMember(row)
-            // setOpen(false)
-            // setShowConfirmUpgrade(true)
+        const handleDelete = (row)=>{
+          
         }
 
         // console.log("selectedMember", row)
@@ -173,8 +155,8 @@ export default function Product(props) {
                 className={`${interFont.className} z-[9999] absolute mt-1 w-48 origin-top-left bg-white border border-gray-200 divide-y divide-gray-100 rounded-md shadow-xl focus:outline-none`}
                 style={{ top: menuPosition.top, left: menuPosition.left, position: 'absolute' }}
             >
-                <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" >Edit</button>
-                <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" >Delete</button>                
+                <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" onClick={() => handleGo(`/main/products/${row._id}`)}>Edit</button>
+                <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" onClick={() => handleDelete(row.id)}>Delete</button>
             </div>
         );
 
@@ -200,6 +182,7 @@ export default function Product(props) {
         {
             name: "",
             cell: row => renderCol(row),         
+            width: "120px",
         },
         {
           	name: 'Code',
@@ -220,10 +203,21 @@ export default function Product(props) {
 		},
 		{
 			name: 'Price(SRP)',			
-			right: 'true',
-			minWidth: "200px",
+			right: 'true',			
 			sortable: true,
 			selector: row => <p className="mb-0">{Number(row.price || 0).toLocaleString('en', {minimumFractionDigits: 2})}</p>
+		},
+        {
+			name: "Member's Price",			
+			right: 'true',			
+			sortable: true,
+			selector: row => <p className="mb-0">{Number(row.memmember_price || 0).toLocaleString('en', {minimumFractionDigits: 2})}</p>
+		},
+        {
+			name: "Hub's Price",			
+			right: 'true',		
+			sortable: true,
+			selector: row => <p className="mb-0">{Number(row.hub_price || 0).toLocaleString('en', {minimumFractionDigits: 2})}</p>
 		},
         
     ];
@@ -251,10 +245,11 @@ export default function Product(props) {
                             </span>
                     </div>    
                     <div className="mt-4 md:mt-0">
-                        <PrimaryBtn type="button"  >Add New Product </PrimaryBtn>                    
+                        <PrimaryBtn type="button" onClick={() => router.push("/main/products/add")}>Add New Product </PrimaryBtn>                    
                     </div>                
                 </div>
-                <div className='mt-4 max-w-[800px] md:max-w-[1000px] lg:max-w-[1500px] relative z-10'>
+                {/* max-w-[800px] md:max-w-[1000px] lg:max-w-[1500px]  */}
+                <div className='mt-4 w-full relative z-10'>
                     <div className='overflow-x-auto'>
                         {content}
                     </div>

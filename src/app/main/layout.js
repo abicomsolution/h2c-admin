@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import SidebarLink from "@/components/sidebarLink"
 import { usePathname } from "next/navigation"
+import usePageTitle from "@/hooks/usePageTitle"
 import {
   LayoutDashboard,
   Receipt,
@@ -44,6 +45,7 @@ function MainLayout(props) {
 
     const pathname = usePathname();
     const router = useRouter();    
+    const { pageTitle } = usePageTitle();
 
     const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -69,14 +71,10 @@ function MainLayout(props) {
         signOut({callbackUrl: "/login", redirect: true})
     }
 
-    let routeName = pathname.split("/").filter(Boolean).pop() || "dashboard";
-  
-
-    if (routeName == "main"){
-        routeName = "Dashboard";
+    const handleMenuClick = (url) => {
+        router.push(url);
+        setUserMenuOpen(false);
     }
-
-    routeName = routeName.charAt(0).toUpperCase() + routeName.slice(1);
 
     return(
         <>
@@ -115,7 +113,7 @@ function MainLayout(props) {
                         <div className="flex-1 space-y-4 p-4 pt-2 md:p-6">
                             <div className="flex items-center justify-between space-y-2">
                                 <h2 className={`text-[#404a60] text-3xl font-bold tracking-tight`}>
-                                {routeName}
+                                {pageTitle}
                                 </h2>    
                             </div>
                         </div>                                           

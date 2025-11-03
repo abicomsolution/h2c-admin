@@ -685,7 +685,7 @@ export default function Profile() {
                             { saveState=="failed" && errorBox}
                             <div className='flex gap-6 mt-5'>                      
                                 {photoBog}
-                            <div className='flex items-center'>
+                                <div className='flex items-center'>
                                     <input type="file"
                                         id="uploadBtn"
                                         multiple
@@ -695,8 +695,7 @@ export default function Profile() {
                                     <label className="btn-primary" htmlFor="uploadBtn">
                                             Upload Photo
                                     </label>      
-                                </div>
-                                
+                                </div>                                
                             </div>
                             <div className="border-b border-dotted border-gray-300 py-2">                        
                             </div>

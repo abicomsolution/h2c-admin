@@ -92,7 +92,7 @@ export default function Rejected(props) {
     const columns = [       
         {
             name: "Date/Time",
-            selector:  row => moment(row.date_created).format("MMM-DD-YYYY hh:mm A"),
+            selector:  row => moment(row.transdate).format("MMM-DD-YYYY hh:mm A"),
             sortable: true,
             width: "230px",                   
         },
