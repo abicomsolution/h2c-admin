@@ -51,9 +51,12 @@ const memberSchema = new Schema({
 memberSchema.virtual('value').get(function () {
     return this._id;
 })
+
+
 memberSchema.virtual('label').get(function () {
-    return this.fname + ' ' + this.lname;
+    return "(" +  this.username+ ") " + this.fname + ' ' +  this.mname + " " + this.lname;
 })
+
 
 export default mongoose.models.member || mongoose.model("member", memberSchema);
 

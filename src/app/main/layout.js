@@ -7,7 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import SidebarLink from "@/components/sidebarLink"
 import { usePathname } from "next/navigation"
-import usePageTitle from "@/hooks/usePageTitle"
+import { PageTitleProvider, usePageTitle } from "@/provider/PageTitleProvider"
 import {
   LayoutDashboard,
   Receipt,
@@ -41,7 +41,7 @@ export const interFont = Inter({
 
 
 // console.log(interFont)
-function MainLayout(props) {
+function MainLayoutContent(props) {
 
     const pathname = usePathname();
     const router = useRouter();    
@@ -75,6 +75,9 @@ function MainLayout(props) {
         router.push(url);
         setUserMenuOpen(false);
     }
+
+    console.log("Layout pageTitle:", pageTitle);
+    console.log("Current pathname:", pathname);
 
     return(
         <>
@@ -163,6 +166,15 @@ function MainLayout(props) {
     )
 
 
+}
+
+
+function MainLayout(props) {
+    return (
+        <PageTitleProvider>
+            <MainLayoutContent {...props} />
+        </PageTitleProvider>
+    );
 }
 
 

@@ -5,7 +5,7 @@ import { Search } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import usePageTitle from "@/hooks/usePageTitle";
+import { usePageTitle } from "@/provider/PageTitleProvider";
 import callApi from '@/utils/api-caller';
 import PreLoader from '@/components/preloader';
 import { interFont } from '../../layout'
@@ -17,7 +17,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import NoPhoto from '../../../../assets/product.png'
 import Select from 'react-select'
 import { Checkbox, Label } from "flowbite-react";
-import _, { set } from 'lodash';
+import _ from 'lodash';
 
 const initForm = {
 	_id: '',
@@ -66,7 +66,7 @@ export default function Product(props) {
 
     const session = useSession()
     const [initialized, setinitialized] = useState(false) 
-    const { updatePageTitle, pageTitle } = usePageTitle();
+    const { updatePageTitle } = usePageTitle();
     const params = useParams();
 
     const router = useRouter();
@@ -98,17 +98,17 @@ export default function Product(props) {
 
     // Update page title based on whether it's add or edit mode
     useEffect(() => {
-        // Check if this is an edit mode by looking at the URL parameter
         const productId = params?.id;
         
-        if (productId && productId !== 'add') {
-            console.log("Editing product:", productId);
-            updatePageTitle('Edit Product');
-        } else {
+        if (productId === 'add') {
+            console.log("Calling updatePageTitle with: Add Product");
             updatePageTitle('Add Product');
+        } else if (productId && productId !== 'add') {
+            console.log("Calling updatePageTitle with: Edit Product");
+            updatePageTitle('Edit Product');
         }
+              
     }, [params?.id, updatePageTitle]);
-
 
 
     const init = async ()=>{
@@ -118,7 +118,7 @@ export default function Product(props) {
             const productId = params?.id;                  
             const ret =  await callApi(`/product/${productId}`, "GET") 
             if (ret.status==200){                 
-                console.log(ret.data)               
+                    
                 setCategories(ret.data.categories)
                 if (ret.data.product){
                     setForm(ret.data.product)
@@ -219,9 +219,7 @@ export default function Product(props) {
     }
 
     const handleSave = async ()=>{
-        
-        console.log(formdata)
-
+      
         if (_.isEmpty(formdata.photo_thumb) && _.isEmpty(photo)) {
             setErrorMessage("Please upload photo.")
         } else if (_.isEmpty(formdata.code.trim())) {
@@ -339,7 +337,7 @@ export default function Product(props) {
 
     return (
         <div className={`${interFont.className} w-full px-6 pb-10`}>                    
-            <div className="bg-white rounded-xl p-6 px-8">
+            <div className="bg-white rounded-xl p-6 px-12">
                 { errorBox}
                 <div className='mt-4 grid grid-cols-1 md:grid-cols-2 gap-12'>
                     <div className='space-y-5'>

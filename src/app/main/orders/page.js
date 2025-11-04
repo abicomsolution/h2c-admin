@@ -12,6 +12,8 @@ import NoRecord from '@/components/NoRecord';
 import PrimaryBtn from "@/components/primaryBtn";
 import { createPortal } from 'react-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import { pad } from '@/utils/functions';
+import ConfirmDelete from './confirm';
 
 export default function Orders(props) {
 
@@ -19,9 +21,11 @@ export default function Orders(props) {
     const [initialized, setinitialized] = useState(false) 
 
     const router = useRouter();
-    const [products, setProducts] = useState([]);
+    const [orders, setorders] = useState([]);
     const [loadstate, setloadstate] = useState("")
     const [search, setsearch] = useState("")
+    const [showConfirm, setshowConfirm] = useState(false)
+    const [selectedOrder, setselectedOrder] = useState(null)
     
     
     useEffect(() => {
@@ -45,20 +49,20 @@ export default function Orders(props) {
 
 
     const init = async ()=>{
-        // setloadstate("loading")     
-        // try{                 
-        //     const ret =  await callApi("/product") 
-        //     if (ret.status==200){                
-        //         setProducts(ret.data)
-        //         setloadstate("success")
-        //     }else{              
-        //         setloadstate("")
-        //     }
+      
+        try{                 
+            const ret =  await callApi("/order") 
+            if (ret.status==200){                
+                setorders(ret.data)
+                setloadstate("success")
+            }else{              
+                setloadstate("")
+            }
 
-        // }catch(err){
-        //     console.log(err)
-        //     setloadstate("")
-        // }
+        }catch(err){
+            console.log(err)
+            setloadstate("")
+        }
         
     }
 
@@ -68,7 +72,7 @@ export default function Orders(props) {
         // try{                 
         //     const ret =  await callApi("/member/search", "POST", {search: searchTerm}) 
         //     if (ret.status==200){                
-        //         setProducts(ret.data)
+        //         setorders(ret.data)
         //         setloadstate("success")
         //     }else{              
         //         setloadstate("")
@@ -85,22 +89,12 @@ export default function Orders(props) {
         setsearch(e.target.value)
     }
 
-    
-    const handleConfirmHub = ()=>{
-        setshowPromoteHub(false)
-        toast.success('Member successfully promoted to Hub!')
-        setTimeout(() => {
-            window.location.reload();    
-        }, 2000);
-        
+    const handleDelete = async ()=>{
+        setshowConfirm(false)
+        toast.success("Order deleted successfully!")
+        init()
     }
-
-    const handleConfirmUpgrade = ()=>{
-        setShowConfirmUpgrade(false)
-        toast.success('Member successfully upgraded to Paid!')
-        searchNow(search)
-    }
-
+   
     useEffect(()=>{
         const delayDebounceFn = setTimeout(() => {
             // Send Axios request here
@@ -131,26 +125,16 @@ export default function Orders(props) {
         };
 
 
-        const handleGo = (url)=>{
-          
+        const handleGo = (url)=>{          
             router.push(url);   
         }
 
-        const handlePromoteHub = (row)=>{
-        //   setselectedMember(row)
-        //   setOpen(false)
-        //   setshowPromoteHub(true)
-         
+        const handleDelete = (row)=>{
+            setshowConfirm(true);
+            setselectedOrder(row);
+            setOpen(false); 
         }
-
-        const handleUpgradeToPaid = (row)=>{
-            // setselectedMember(row)
-            // setOpen(false)
-            // setShowConfirmUpgrade(true)
-        }
-
-        // console.log("selectedMember", row)
-        // Close dropdown on outside click, but not when clicking inside the dropdown
+        
         React.useEffect(() => {
             if (!open) return;
             function handleClick(event) {
@@ -173,8 +157,8 @@ export default function Orders(props) {
                 className={`${interFont.className} z-[9999] absolute mt-1 w-48 origin-top-left bg-white border border-gray-200 divide-y divide-gray-100 rounded-md shadow-xl focus:outline-none`}
                 style={{ top: menuPosition.top, left: menuPosition.left, position: 'absolute' }}
             >
-                <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" >Edit</button>
-                <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" >Delete</button>                
+                <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" onClick={() => handleGo(`/main/orders/${row._id}`)}>Edit</button>
+                    <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" onClick={() => handleDelete(row)}>Delete</button>            
             </div>
         );
 
@@ -193,6 +177,8 @@ export default function Orders(props) {
         );
     }
 
+    console.log("orders", orders)
+
     let content = <PreLoader/>
 
   
@@ -200,30 +186,45 @@ export default function Orders(props) {
         {
             name: "",
             cell: row => renderCol(row),         
+            width: "120px",
         },
         {
-            name: 'Code',
-            selector:  row => row.code,
-            width: "200px",    
-            sortable: true        
+            name: 'Order #',
+            selector:  row =>  pad(row.order_num, 6),			
+            sortable: true,
+            width: "120px"
         },
         {
-            name: 'Product Name',
-            selector:  row => row.productname,
+            name: "Date/Time",
+            selector:  row => moment(row.transdate).format("MMM-DD-YYYY"),
+            sortable: true,
+            width: "160px",                   
+        },
+        {
+            name: 'Member',
+            selector:  row => "(" +row.member_id?.username +") - " + row.member_id?.fullname,
             sortable: true,
             width: "300px",                    
         },
-       {
-            name: 'UOM',
-            selector:  row => row.uom,			
-            sortable: true
-        },
         {
-            name: 'Price(SRP)',			
+            name: 'Sub Total',			
             right: 'true',
             minWidth: "200px",
             sortable: true,
-            selector: row => <p className="mb-0">{Number(row.price || 0).toLocaleString('en', {minimumFractionDigits: 2})}</p>
+            selector: row => <p className="mb-0">{Number(row.subtotal || 0).toLocaleString('en', {minimumFractionDigits: 2})}</p>
+        },
+        {
+            name: 'Total Amount',			
+            right: 'true',
+            minWidth: "200px",
+            sortable: true,
+            selector: row => <p className="mb-0">{Number(row.total_amount || 0).toLocaleString('en', {minimumFractionDigits: 2})}</p>
+        },
+        {
+            name: 'Status',
+            selector:  row => row.status==1?<p className="bg-green-400 px-4 py-2 rounded-4xl text-white font-semibold">Posted</p>:<p className="bg-yellow-400 px-4 py-2 rounded-4xl text-white font-semibold">Open</p>,
+            sortable: true,
+            width: "120px"
         },
         
     ];
@@ -233,7 +234,7 @@ export default function Orders(props) {
                         noHeader
                         pagination
                         columns={columns}
-                        data={products}
+                        data={orders}
                         noDataComponent={<NoRecord/>}
                         customStyles={customStyles}
                     />
@@ -251,16 +252,22 @@ export default function Orders(props) {
                             </span>
                     </div>    
                     <div className="mt-4 md:mt-0">
-                        <PrimaryBtn type="button"  >Add New Order </PrimaryBtn>                    
+                        <PrimaryBtn type="button" onClick={() => router.push("/main/orders/add")} >Add New Order </PrimaryBtn>                    
                     </div>                
                 </div>
-                <div className='mt-4 max-w-[800px] md:max-w-[1000px] lg:max-w-[1500px] relative z-10'>
+                <div className='mt-4 relative z-10'>
                     <div className='overflow-x-auto'>
                         {content}
                     </div>
                 </div>
             </div>                  
             <Toaster position="top-center" reverseOrder={false}/>
+              <ConfirmDelete 
+                showConfirm={showConfirm} 
+                setshowConfirm={setshowConfirm}
+                onYes={handleDelete}
+                selectedOrder={selectedOrder}
+            />
         </div>
     )
 }

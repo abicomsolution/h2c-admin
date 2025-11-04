@@ -12,6 +12,8 @@ import NoRecord from '@/components/NoRecord';
 import PrimaryBtn from "@/components/primaryBtn";
 import { createPortal } from 'react-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import ConfirmDelete from './confirm';
+
 
 export default function Product(props) {
 
@@ -22,8 +24,9 @@ export default function Product(props) {
     const [products, setProducts] = useState([]);
     const [loadstate, setloadstate] = useState("")
     const [search, setsearch] = useState("")
-    
-    
+    const [showConfirm, setshowConfirm] = useState(false)
+    const [selectedProduct, setSelectedProduct] = useState(null);
+
     useEffect(() => {
     
         if (session.status === "unauthenticated") {
@@ -84,6 +87,15 @@ export default function Product(props) {
     const handleChange = (e)=>{
         setsearch(e.target.value)
     }
+
+    const handleDelete = ()=>{      
+        setshowConfirm(false);
+        toast.success("Product deleted successfully");
+        init()   
+        // setTimeout(() => {
+        //     window.location.reload();
+        // }, 2000);
+    }
     
     useEffect(()=>{
         const delayDebounceFn = setTimeout(() => {
@@ -120,15 +132,11 @@ export default function Product(props) {
             router.push(url);   
         }
 
-        const handlePromoteHub = (row)=>{
-        //   setselectedMember(row)
-        //   setOpen(false)
-        //   setshowPromoteHub(true)
-         
-        }
-
+    
         const handleDelete = (row)=>{
-          
+            setshowConfirm(true);
+            setSelectedProduct(row);
+            setOpen(false); 
         }
 
         // console.log("selectedMember", row)
@@ -156,7 +164,7 @@ export default function Product(props) {
                 style={{ top: menuPosition.top, left: menuPosition.left, position: 'absolute' }}
             >
                 <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" onClick={() => handleGo(`/main/products/${row._id}`)}>Edit</button>
-                <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" onClick={() => handleDelete(row.id)}>Delete</button>
+                <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" onClick={() => handleDelete(row)}>Delete</button>
             </div>
         );
 
@@ -177,7 +185,6 @@ export default function Product(props) {
 
     let content = <PreLoader/>
 
-  
     const columns = [
         {
             name: "",
@@ -187,7 +194,7 @@ export default function Product(props) {
         {
           	name: 'Code',
             selector:  row => row.code,
-            width: "200px",    
+            width: "120px",    
             sortable: true        
         },
         {
@@ -195,6 +202,12 @@ export default function Product(props) {
             selector:  row => row.productname,
             sortable: true,
             width: "300px",                    
+        },
+        {
+            name: 'Category',
+            selector:  row => row.category_id?.name,
+            width: "200px",    
+            sortable: true        
         },
        {
 			name: 'UOM',
@@ -211,13 +224,19 @@ export default function Product(props) {
 			name: "Member's Price",			
 			right: 'true',			
 			sortable: true,
-			selector: row => <p className="mb-0">{Number(row.memmember_price || 0).toLocaleString('en', {minimumFractionDigits: 2})}</p>
+			selector: row => <p className="mb-0">{Number(row.member_price || 0).toLocaleString('en', {minimumFractionDigits: 2})}</p>
 		},
         {
 			name: "Hub's Price",			
 			right: 'true',		
 			sortable: true,
 			selector: row => <p className="mb-0">{Number(row.hub_price || 0).toLocaleString('en', {minimumFractionDigits: 2})}</p>
+		},
+         {
+			name: "Is Package",			
+			right: 'true',		
+			sortable: true,
+			selector: row => <p className="mb-0">{row.isProdPackage ? "Yes" : "No"}</p>
 		},
         
     ];
@@ -256,6 +275,12 @@ export default function Product(props) {
                 </div>
             </div>                  
             <Toaster position="top-center" reverseOrder={false}/>
+            <ConfirmDelete 
+                showConfirm={showConfirm} 
+                setshowConfirm={setshowConfirm}
+                onYes={handleDelete}
+                selectedProduct={selectedProduct}
+            />
         </div>
     )
 }

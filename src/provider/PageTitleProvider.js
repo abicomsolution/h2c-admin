@@ -1,9 +1,13 @@
-import { useState, useEffect } from 'react';
+"use client"
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
-const usePageTitle = () => {
+const PageTitleContext = createContext();
+
+export const PageTitleProvider = ({ children }) => {
     const pathname = usePathname();
     const [pageTitle, setPageTitle] = useState('Dashboard');
+    const [isManuallySet, setIsManuallySet] = useState(false);
 
     // Define the mapping of routes to page titles
     const routeTitles = {
@@ -27,6 +31,9 @@ const usePageTitle = () => {
     };
 
     useEffect(() => {
+        // Only auto-set title if it hasn't been manually set
+        if (isManuallySet) return;
+        
         // Get the title from the mapping, or create a default title
         let title = routeTitles[pathname];
         
@@ -44,15 +51,38 @@ const usePageTitle = () => {
                 .join(' ');
         }
         
+        console.log("Auto-setting title to:", title);
         setPageTitle(title);
-    }, [pathname]);
+    }, [pathname, isManuallySet]);
 
-    // Function to manually update page title if needed
+    // Function to manually update page title
     const updatePageTitle = (newTitle) => {
+        console.log("Manually setting title to:", newTitle);
         setPageTitle(newTitle);
+        setIsManuallySet(true);
     };
 
-    return { pageTitle, updatePageTitle };
+    // Reset manual flag when pathname changes
+    useEffect(() => {
+        setIsManuallySet(false);
+    }, [pathname]);
+
+    const value = {
+        pageTitle,
+        updatePageTitle
+    };
+
+    return (
+        <PageTitleContext.Provider value={value}>
+            {children}
+        </PageTitleContext.Provider>
+    );
 };
 
-export default usePageTitle;
+export const usePageTitle = () => {
+    const context = useContext(PageTitleContext);
+    if (!context) {
+        throw new Error('usePageTitle must be used within a PageTitleProvider');
+    }
+    return context;
+};
