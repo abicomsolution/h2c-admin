@@ -20,7 +20,7 @@ const controlStyle = {
 export default function EditForm(props) {
 
     const [filteredProducts, setFilteredProducts] = useState([])
-    const { data, products, formdetails, details, onSelectProduct, onChangeDetails, onRemoveItem, onEdit, onCancelEdit, onUpdateItem, editShown} = props
+    const { data, products, formdetails, details, onSelectProduct, onChangeDetails, onRemoveItem, onEdit, onCancelEdit, onUpdateItem, editShown, formdata} = props
 
     useEffect(()=>{
         
@@ -127,21 +127,24 @@ export default function EditForm(props) {
                         <p>{Number(data.subtotal).toLocaleString('en', {minimumFractionDigits: 2})}</p>
                     </TableCell>
                     <TableCell>
-                        <div className='flex justify-center'>
-                            <div className='flex gap-2'>
-                                <div>
-                                    <button type="button" onClick={()=>handleEdit(data)} className="bg-[#cc262644] hover:bg-[#cc262670] text-red-700 py-2 px-2 rounded-full text-sm">
-                                        <Edit className='h-6 w-6'/>
-                                    </button>
-                                </div>
-                                <div>
-                                    <button type="button" onClick={()=>handleRemove(data)} className="bg-[#26cc2e44] hover:bg-[#26cc2e73] text-green-700 py-2 px-2 rounded-full text-sm">
-                                        <Trash2 className='h-6 w-6'/>
-                                    </button>
+
+                        { 
+                            formdata.status !=1 && <div className='flex justify-center'>
+                                <div className='flex gap-2'>
+                                    <div>
+                                        <button type="button" onClick={()=>handleEdit(data)} className="bg-[#cc262644] hover:bg-[#cc262670] text-red-700 py-2 px-2 rounded-full text-sm">
+                                            <Edit className='h-6 w-6'/>
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <button type="button" onClick={()=>handleRemove(data)} className="bg-[#26cc2e44] hover:bg-[#26cc2e73] text-green-700 py-2 px-2 rounded-full text-sm">
+                                            <Trash2 className='h-6 w-6'/>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-
+                        }
+                        
                     </TableCell>
                 </TableRow>      
     }

@@ -14,15 +14,15 @@ import { TriangleAlert, ArrowLeft, Plus } from "lucide-react";
 import PrimaryBtn from "@/components/primaryBtn";
 import CancelBtn from '@/components/cancelBtn';
 import toast, { Toaster } from 'react-hot-toast';
-import NoPhoto from '../../../../assets/product.png'
 import Select from 'react-select'
-import { Datepicker, Checkbox, Label, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from "flowbite-react";
+import { Checkbox, Label, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from "flowbite-react";
 import _, { set } from 'lodash';
 import { pad } from '@/utils/functions';
 import { HUBTYPE } from '@/utils/constants';
 import AddForm from './addform';
 import EditForm from './editForm';
 import { v4 } from 'uuid';
+import ConfirmPost from './confirmPost';
 
 const initForm = {
 	member_id: null,
@@ -93,6 +93,7 @@ export default function OrderForm(props) {
     const [errLine, setErrorLine] = useState("")
     const [editShown, showEdit] = useState(false)
     const [hasChanges, setHasChanges] = useState(false)
+    const [showPostConfirm, setShowPostConfirm] = useState(false)
         
     useEffect(() => {
     
@@ -133,14 +134,7 @@ export default function OrderForm(props) {
                     setHasChanges(true)
                 } else {
                     setHasChanges(false)
-                }
-                // console.log(formdata)
-                // console.log(origFormdata)
-				// if (!isArrayEqual(details, origDetails) || !_.isEqual(formdata, origFormdata)) {
-				// 	setHasChanges(true)
-				// } else {
-				// 	setHasChanges(false)
-				// }
+                }                
 			}
         }
 
@@ -177,6 +171,8 @@ export default function OrderForm(props) {
         }
         
     }
+
+    console.log("formdata:", formdata)
 
     const handleSave = async ()=>{
       
@@ -477,8 +473,19 @@ export default function OrderForm(props) {
 			setForm(tmpO)
             setErrorLine("")
             setErrorMessage("")
-
         }
+    }
+
+    const handlePost = ()=>{
+        setShowPostConfirm(true)
+     
+    }
+
+
+    const handlePostConfirm = async ()=>{
+        init()
+        setShowPostConfirm(false)
+        toast.success('Order successfully posted!')
     }
 
     let content = <PreLoader/>
@@ -524,18 +531,22 @@ export default function OrderForm(props) {
             boxStockist =   <p className={`text-center ${formdata.member_id.hubtype == 2 ? 'bg-[#ff44ab]':formdata.member_id.hubtype == 1 ? 'bg-[#ff7044]' : formdata.member_id.hubtype == 0 ? 'bg-[#4469ff]': ""} uppercase text-sm rounded-full px-4 font-bold text-white py-1`}>{HUBTYPE[formdata.member_id.hubtype || 0]}</p>
 
             codebox = <div>
-                        <Checkbox id="hascodes" name="hascodes" checked={formdata.hascodes} onChange={handlePC}/>
+                        <Checkbox id="hascodes" name="hascodes" checked={formdata.hascodes} onChange={handlePC} disabled={formdata.status == 1}/>
                         <Label htmlFor="hascodes" className="ml-3 text-base font-medium -mt-1">Generate product codes</Label>
                     </div>
         }        
     }
-
-    console.log("hasChanges:", hasChanges)
-
+    
     return (
         <div className={`${interFont.className} w-full px-6 pb-10`}>                    
             <div className="bg-white rounded-xl p-6 px-12 ">
-                { errorBox}
+                {errorBox}
+                <div className="flex justify-between items-center mb-6 pt-2">
+                    <div></div>
+                    <div>
+                        {formdata.status===1 && <p className='bg-green-400 p-2 px-4 rounded-4xl text-white'>Posted</p>}
+                    </div>
+                </div>
                 <div className='mt-8 grid grid-cols-1 md:grid-cols-2 gap-12'>
                     <div className='space-y-6'>
                         <div className='grid grid-cols-2 gap-4'>
@@ -543,32 +554,41 @@ export default function OrderForm(props) {
                                 <label className="md:text-lg font-medium block text-[#404758] mb-2">Date <span className='text-red-500 text-xs'>*</span> </label>
                                 <input
                                     className="w-full text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3  focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="" id="transdate" value={moment(formdata.transdate).format("YYYY-MM-DD")} type="date" name='transdate' onChange={handleChange}/>
+                                    placeholder="" id="transdate" 
+                                    value={moment(formdata.transdate).format("YYYY-MM-DD")} 
+                                    type="date" 
+                                    name='transdate' 
+                                    onChange={handleChange}
+                                    disabled={formdata.status == 1}/>
                             </div>
                             <div>
                                 <label className="md:text-lg font-medium block text-[#404758] mb-2">Order # </label>
                                 <input
                                     className="w-full text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="Order Number" id="order_num" value={formdata?.order_num ? pad(formdata.order_num, 6): "[AUTO]"} type="text" name='order_num' disabled/>
+                                    placeholder="Order Number" 
+                                    id="order_num" 
+                                    value={formdata?.order_num ? pad(formdata.order_num, 6): "[AUTO]"} 
+                                    type="text" 
+                                    name='order_num' disabled/>
                             </div>                           
                         </div>   
                         <div>
                             <label className="md:text-lg font-medium block text-[#404758] mb-4">Payment Mode</label>
                             <div className='flex gap-6'>
                                 <div>
-                                    <Checkbox id="cash_payment" name="cash_payment" checked={formdata.cash_payment} onChange={handleCheck}/>
+                                    <Checkbox id="cash_payment" name="cash_payment" checked={formdata.cash_payment} onChange={handleCheck} disabled={formdata.status == 1}/>
                                     <Label htmlFor="cash_payment" className="ml-3 text-base font-medium -mt-1">Cash</Label>
                                 </div>                              
                                 <div>
-                                    <Checkbox id="cc_payment" name="cc_payment" checked={formdata.cc_payment} onChange={handleCheck}/>
+                                    <Checkbox id="cc_payment" name="cc_payment" checked={formdata.cc_payment} onChange={handleCheck} disabled={formdata.status == 1}/>
                                     <Label htmlFor="cc_payment" className="ml-3 text-base font-medium -mt-1">Credit Card</Label>
                                 </div>
                                 <div>
-                                    <Checkbox id="bank_payment" name="bank_payment" checked={formdata.bank_payment} onChange={handleCheck}/>
+                                    <Checkbox id="bank_payment" name="bank_payment" checked={formdata.bank_payment} onChange={handleCheck} disabled={formdata.status == 1}/>
                                     <Label htmlFor="bank_payment" className="ml-3 text-base font-medium -mt-1">Bank Deposit/Transfer</Label>
                                 </div>
                                 <div>
-                                    <Checkbox id="ewallet_payment" name="ewallet_payment" checked={formdata.ewallet_payment} onChange={handleCheck}/>
+                                    <Checkbox id="ewallet_payment" name="ewallet_payment" checked={formdata.ewallet_payment} onChange={handleCheck} disabled={formdata.status == 1}/>
                                     <Label htmlFor="ewallet_payment" className="ml-3 text-base font-medium -mt-1">E-Wallet</Label>
                                 </div>
                             </div>
@@ -577,23 +597,34 @@ export default function OrderForm(props) {
                             <label className="md:text-lg font-medium block text-[#404758] mb-2">Payment Reference <span className='text-red-500 text-xs'>*</span> </label>
                             <input
                                 className="w-100 text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="" id="payment_ref_num" value={formdata.payment_ref_num} type="text" name='payment_ref_num' onChange={handleChange}/>
+                                placeholder="" id="payment_ref_num" 
+                                value={formdata.payment_ref_num} 
+                                type="text" 
+                                name='payment_ref_num'
+                                onChange={handleChange}
+                                disabled={formdata.status == 1}/>
                         </div>  
                         <div>
                             <label className="md:text-lg font-medium block text-[#404758] mb-2">Remarks </label>
                             <textarea
                                 className="w-full h-16 text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="" id="remarks" value={formdata.remarks} type="text" name='remarks' onChange={handleChange}/>                                
+                                placeholder="" 
+                                id="remarks" 
+                                value={formdata.remarks} 
+                                type="text" 
+                                name='remarks' 
+                                disabled={formdata.status == 1}
+                                onChange={handleChange}/>                                
                         </div>
 
                         <div className='space-y-5'>
                             <div>
-                                <Checkbox id="repeatorder" name="repeatorder" checked={formdata.repeatorder} onChange={handleRO}/>
+                                <Checkbox id="repeatorder" name="repeatorder" checked={formdata.repeatorder} onChange={handleRO} disabled={formdata.status == 1}/>
                                 <Label htmlFor="repeatorder" className="ml-3 text-base font-medium -mt-1">Repeat Order</Label>
                             </div>
                             {codebox}
                             <div>
-                                <Checkbox id="hasactivationcodes" name="hasactivationcodes" checked={formdata.hasactivationcodes} onChange={handleCheck}/>
+                                <Checkbox id="hasactivationcodes" name="hasactivationcodes" checked={formdata.hasactivationcodes} onChange={handleCheck} disabled={formdata.status == 1}/>
                                 <Label htmlFor="hasactivationcodes" className="ml-3 text-base font-medium -mt-1">Generate activation codes (for packages)</Label>
                             </div>
                         </div>   
@@ -601,7 +632,11 @@ export default function OrderForm(props) {
                     <div className='space-y-6'>
                         <div>
                             <label className="md:text-lg font-medium block text-[#404758] mb-2">Choose Member <span className='text-red-500 text-xs'>*</span> </label>
-                            <Select  menuPortalTarget={typeof document !== "undefined" ? document.body : null} styles={controlStyle} options={members} value={formdata.member_id}   onChange={handleChangeCat} />                            
+                            <Select  menuPortalTarget={typeof document !== "undefined" ? document.body : null} styles={controlStyle}
+                                     options={members} 
+                                     value={formdata.member_id}   
+                                     isDisabled={formdata.status == 1}
+                                     onChange={handleChangeCat} />                            
                         </div>
                         <div>
                             <label className="md:text-lg font-medium block text-[#404758] mb-2">Account Status </label>
@@ -627,10 +662,7 @@ export default function OrderForm(props) {
                 <div className='mt-8'>
                     <div className='flex justify-between'>
                         <p className='font-bold text-lg'>Products</p>
-                        <PrimaryBtn type="button" onClick={()=>showAdd(true)}>
-                            <Plus className='h-6 w-6'/>
-                            Add Product
-                        </PrimaryBtn>    
+                        {formdata.status != 1 &&  <PrimaryBtn type="button" onClick={()=>showAdd(true)}> <Plus className='h-6 w-6'/>Add Product</PrimaryBtn> }
                     </div>  
                     
                     <div className="mt-2 overflow-x-auto">                      
@@ -698,13 +730,19 @@ export default function OrderForm(props) {
                     <CancelBtn type="button"  onClick={handleCancel}>Back</CancelBtn>     
                     <div className='flex gap-4'>
                         {
-                            params.id!=='add' && !hasChanges &&
-                            <PrimaryBtn type="button" >Post</PrimaryBtn>      
+                            params.id!=='add' && !hasChanges && formdata.status==0 &&
+                            <PrimaryBtn type="button" onClick={handlePost}>Post</PrimaryBtn>      
                         }
-                        <PrimaryBtn type="button"  onClick={handleSave}  isLoading={saveState==="saving"}>Save Changes</PrimaryBtn>                             
+                        { formdata.status != 1 && <PrimaryBtn type="button"  onClick={handleSave}  isLoading={saveState==="saving"}>Save Changes</PrimaryBtn>}
                     </div>
                 </div>
             </div>                  
+            <ConfirmPost 
+                showPostConfirm={showPostConfirm} 
+                setShowPostConfirm={setShowPostConfirm} 
+                orderData={formdata}
+                onYes={handlePostConfirm}
+                />
             <Toaster position="top-center" reverseOrder={false}/>
         </div>
     )
