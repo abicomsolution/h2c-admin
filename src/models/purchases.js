@@ -16,8 +16,8 @@ const purchasesSchema = new Schema({
     subtotal: { type: Number, default: 0 },
     productcode: { type: 'String', default: '' },    
     transtype: { type: Number, default: 0 },
-    rbp: { type: Number, default: 0 },
-    mp: { type: Number, default: 0 },
+    // rbp: { type: Number, default: 0 },
+    // mp: { type: Number, default: 0 },
 });
 
 export default mongoose.models.purchase || mongoose.model("purchase", purchasesSchema);
