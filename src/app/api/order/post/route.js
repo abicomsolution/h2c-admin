@@ -128,6 +128,13 @@ const updateMonthlyUnilevelBalance = async (id, transdate)=>{
                 }
             ])
 
+    if (ps.length > 0) {
+        updateParam.personalsales = ps[0].total
+        if (updateParam.personalsales < 0) { updateParam.personalsales = 0 }
+    } 
+
+    
+
 
 
 }
