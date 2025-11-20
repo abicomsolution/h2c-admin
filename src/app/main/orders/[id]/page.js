@@ -182,6 +182,10 @@ export default function OrderForm(props) {
             setErrorMessage("Please add at least one product.")
         } else if (!formdata.bank_payment && !formdata.cash_payment && !formdata.cc_payment && !formdata.ewallet_payment) {
             setErrorMessage("Please select at least one payment  mode.")
+        }else if (_.isEmpty(formdata.member_id?.city)) {
+            setErrorMessage("Please complete member's address (city).")
+        }else if (_.isEmpty(formdata.member_id?.province)) {
+            setErrorMessage("Please complete member's address (province).")
         }else {
             
             let url = ""

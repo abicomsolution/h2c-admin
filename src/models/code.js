@@ -12,6 +12,7 @@ const codeSchema = new Schema({
     codenum: { type: 'String' },
     status: { type: Number, default: 0 },
     isCD: { type: Boolean, default: false },
+    order_id: { type: Schema.Types.ObjectId, ref: 'order_header' },
     codetype: { type: Number, default: 0 },   
 }, { toJSON: { virtuals: true } });
 

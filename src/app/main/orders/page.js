@@ -157,8 +157,12 @@ export default function Orders(props) {
                 className={`${interFont.className} z-[9999] absolute mt-1 w-48 origin-top-left bg-white border border-gray-200 divide-y divide-gray-100 rounded-md shadow-xl focus:outline-none`}
                 style={{ top: menuPosition.top, left: menuPosition.left, position: 'absolute' }}
             >
-                <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" onClick={() => handleGo(`/main/orders/${row._id}`)}>Edit</button>
-                    <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" onClick={() => handleDelete(row)}>Delete</button>            
+                
+                <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" onClick={() => handleGo(`/main/orders/${row._id}`)}>{row.status==0?"Edit":"View"}</button>
+                {
+                    row.status==0 && <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" onClick={() => handleDelete(row)}>Delete</button>            
+                }
+                
             </div>
         );
 

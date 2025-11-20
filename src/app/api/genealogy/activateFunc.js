@@ -224,7 +224,7 @@ export const updateBalance = async (id, rank)=>{
     }
     updateData.net_balance = updateData.balance
 
-    console.log(updateData)
+    // console.log(updateData)
     
     await Earning.findByIdAndUpdate(id, updateData)
 }
@@ -543,8 +543,7 @@ const checkStairstep = async (id)=>{
                          
                 counter.prevSponsor = counter.currentsponsor
                 counter.parent_id = nextParent.sponsorid?nextParent.sponsorid._id : null
-                counter.currentsponsor = nextParent.sponsorid                
-                counter.currentsponsor = nextParent.sponsorid               
+                counter.currentsponsor = nextParent.sponsorid                                        
                 counter.level += 1    
                  
                 // console.log("curr : " + counter.currentsponsor?.username)
@@ -712,6 +711,41 @@ const checkRoyalty= async (id, amount)=>{
         }          
 
     }
+
+}
+
+
+export const saveH2CWallet = async (newm, amount)=>{
+
+    let eheader = await Earning.findOne({member_id: newm._id}).populate('member_id')
+    
+    if (!eheader){
+        return false
+    }
+ 
+    try{
+
+        let newData = {
+            earning_id: eheader._id,
+            transdate: moment().toDate(),
+            earning_type: 0,
+            amount: amount,
+            net_amount: amount,            
+            trans_type: 1,
+            remarks: "",
+            from_member_id: null
+        }
+
+        let newET = new EarningTransaction(newData)
+        await newET.save()
+
+        await updateBalance(eheader._id, eheader.member_id.rank)
+
+    }catch(err){
+        console.log(err)
+        return false
+    }
+   
 
 }
 
