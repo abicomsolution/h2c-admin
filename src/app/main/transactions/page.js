@@ -180,7 +180,7 @@ export default function Transaction(props) {
         {
             name: 'Member',
             selector: 'earning_id.member_id.fullname',
-            cell: row => row.earning_id?.member_id?.fullname,
+            cell: row => row.earning_id?.member_id?.fullname + " - (" + row.earning_id?.member_id?.username + ")",
             sortable: true
         },
         {
