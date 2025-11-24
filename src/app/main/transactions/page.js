@@ -156,11 +156,11 @@ export default function Transaction(props) {
 	        desc = "Transfer CTP to wallet"
         }else if (item.earning_type==9){
 	        desc = "Transfer unilevel to wallet"
-        }else if (item.earning_type=10){
+        }else if (item.earning_type==10){
 	        desc = "Transfer leadership royalty to wallet"
-        }else if (item.earning_type=12){
+        }else if (item.earning_type==12){
 	        desc = "Hub royalty from  " +  item.from_membr_id.fullname + " (" + item.from_member_id.username + ")"
-        }else if (item.earning_type=13){
+        }else if (item.earning_type==13){
 	        desc = "Transfer hub royalty to wallet"
         }
         return desc;
