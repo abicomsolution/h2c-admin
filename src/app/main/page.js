@@ -71,7 +71,7 @@ export default function Main(props) {
     }
 
     return (
-        <div className={`${interFont.className} h-full  w-full`}>           
+        <div className={`${interFont.className} w-full`}>           
              <div className="px-6">
                 <div className="space-y-4 lg:flex gap-6">
                     <div className="bg-white w-full h-[140px] rounded-xl p-6">

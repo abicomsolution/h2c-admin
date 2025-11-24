@@ -24,6 +24,7 @@ export default mongoose.models.earning_transaction || mongoose.model("earning_tr
 // 4 - unilevel
 // 5 - royalty
 
+
 // 6 - transfer direct
 // 7 - transfer indirect
 // 8 - transfer ctp
@@ -31,3 +32,6 @@ export default mongoose.models.earning_transaction || mongoose.model("earning_tr
 // 10 - transfer royalty
 
 // 11 - Transferred
+
+// 12 - hub royalty
+// 13 - transfer hub royalty

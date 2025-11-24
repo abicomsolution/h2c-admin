@@ -9,7 +9,7 @@ export const GET = async (request, context) => {
 
     try {   
 
-        let data = await Member.find().populate("sponsorid", "fullname")
+        let data = await Member.find().populate("sponsorid", "fullname username")
         
         return NextResponse.json(data, { status: 200 });
 

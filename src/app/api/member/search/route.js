@@ -21,7 +21,7 @@ export const POST = async (request) => {
             ]
         }
 
-        let data = await Member.find(fields).populate("sponsorid", "fullname")
+        let data = await Member.find(fields).populate("sponsorid", "fullname username")
         
         return NextResponse.json(data, { status: 200 });
 

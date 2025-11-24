@@ -617,7 +617,7 @@ const saveRoyaltyBonus = async (new_id, id, amount, level)=>{
 
 const saveUnilevelPoints = async (counter, product, purch, order)=>{
 
-    if (counter.level==1 || counter.level > 10){
+    if (counter.level > 10){
         console.log("1")
         return
     }
@@ -640,14 +640,14 @@ const saveUnilevelPoints = async (counter, product, purch, order)=>{
 
     let header = await checkHasHeader(counter.member._id, purch.transdate)
 
-    let amount = product.unilevel_alloc / 10
+    let amount = (product.unilevel_alloc / 10) * parseInt(purch.qty)
 
 
     console.log("Unilevel points for " + counter.member.username + " level " + counter.level + " : " + amount)
     
     var data = {
         monthly_unilevel_id: header._id,
-        transdate: order.transdate,
+        transdate: moment(purch.transdate).toDate(),
         order_id: order._id,
         purchase_id: purch._id,
         points: amount,

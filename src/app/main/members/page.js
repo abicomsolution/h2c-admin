@@ -248,7 +248,7 @@ export default function Members(props) {
         },
          {
             name: "Sponsor",
-            selector:  row => row.sponsorid?row.sponsorid.fullname:"--",
+            selector:  row => row.sponsorid?row.sponsorid.fullname +  " (" + row.sponsorid.username + ")":"--",
             sortable: true,
             width: "300px",                                    
         },

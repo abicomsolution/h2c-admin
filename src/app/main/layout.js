@@ -100,8 +100,9 @@ function MainLayoutContent(props) {
                                 <SidebarLink link="/main" title="Dashboard" currentPath={pathname}  icon={<LayoutDashboard className="h-4 w-4"/>}/>       
                                 <SidebarLink link="/main/members" title="Members" currentPath={pathname} icon={<Users2 className="h-4 w-4"/>}/>       
                                 <SidebarLink link="/main/genealogy" title="Genealogy" currentPath={pathname} icon={<Network className="h-4 w-4" />} />                                             
-                                <SidebarLink link="/main/codes" title="Codes" currentPath={pathname} icon={<Wallet className="h-4 w-4" />} />                                             
+                                <SidebarLink link="/main/codes" title="Admin Codes" currentPath={pathname} icon={<Wallet className="h-4 w-4" />} />                                             
                                 <SidebarLink link="/main/withdrawal" title="Withdrawal" currentPath={pathname} icon={<Tags className="h-4 w-4" />} />
+                                <SidebarLink link="/main/unilevel" title="Unilevel" currentPath={pathname} icon={<Tags className="h-4 w-4" />} />
                                 <SidebarLink link="/main/products" title="Products" currentPath={pathname} icon={<Package className="h-4 w-4" />} />
                                 <SidebarLink link="/main/orders" title="Orders" currentPath={pathname} icon={<Truck className="h-4 w-4" />} />
                                 <SidebarLink link="/main/transactions" title="Transactions" currentPath={pathname} icon={<Users className="h-4 w-4" />} />
