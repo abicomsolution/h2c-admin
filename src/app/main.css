@@ -1,14 +1,60 @@
 
 
 #login {
-  position: fixed;  /* stays in place while scrolling */
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;  
- background-color: #fdfbf8;
-  z-index: -1; /* keep it behind content */
+    position: fixed; /* stays in place while scrolling */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    background: radial-gradient(circle at top, #eff6ff 0%, #f8fafc 46%, #fdfcf9 100%);
+    z-index: -1; /* keep it behind content */
+}
+
+.login-card {
+    border-radius: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+    backdrop-filter: blur(8px);
+}
+
+.login-blob {
+    position: absolute;
+    border-radius: 999px;
+    filter: blur(0px);
+    opacity: 0.7;
+}
+
+.login-blob-a {
+    top: -120px;
+    right: -80px;
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle, rgba(125, 211, 252, 0.55), rgba(14, 165, 233, 0));
+}
+
+.login-blob-b {
+    bottom: -140px;
+    left: -90px;
+    width: 360px;
+    height: 360px;
+    background: radial-gradient(circle, rgba(167, 243, 208, 0.5), rgba(16, 185, 129, 0));
+}
+
+.login-fade {
+    animation: login-fade 0.7s ease both;
+}
+
+@keyframes login-fade {
+    0% {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 #topbar{
@@ -125,3 +171,19 @@
         padding-right: 1.5rem
     }
 } */
+
+
+
+.qv-container {
+  width: 100%;
+}
+ 
+.qv-container .ql-container.ql-snow{
+  border: none !important;
+}
+
+.qv-container .ql-editor {  
+  padding: 5px;
+}
+
+

@@ -1,12 +1,11 @@
 "use client"
-import React, { useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import logo from '../../assets/logo_200.png'
 import Image from 'next/image';
 import helping from '../../assets/helping.png'
-import { interFont } from  '../main/layout'
 import { useRouter } from "next/navigation";
 import PrimaryBtn from '@/components/primaryBtn';
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { TriangleAlert } from "lucide-react";
 
 const formData = {
@@ -26,7 +25,7 @@ export default function Login() {
     useEffect(() => {
 
         if (sessionStatus=="authenticated"){
-             router.replace("/main");
+             router.replace("/");
         }
 
     },[sessionStatus])
@@ -72,51 +71,84 @@ export default function Login() {
 
     var errorBox = null
     if (errorMessage) {
-        errorBox = <div className="flex gap-2 bg-[#e12d2dbf] p-2 my-4">
-                    <TriangleAlert  className="h-6 w-6  text-white" strokeWidth={3} />
-                    <span className="text-base font-bold text-white">{errorMessage}</span>
-                </div>
+        errorBox = (
+            <div className="flex gap-3 rounded-xl border border-red-200 bg-red-50 p-3 my-5">
+                <TriangleAlert className="h-5 w-5 text-red-600" strokeWidth={2.5} />
+                <span className="text-sm font-semibold text-red-700">{errorMessage}</span>
+            </div>
+        )
                     
     }
 
     return (
-        <div id="login" className={`${interFont.className} p-8 bg-[#7eb8e836] pb-20  text-[#404a60]`}>
-            <div className="flex justify-start">
-                <Image src={logo.src} alt="Logo" width={120} height={78}/>
-            </div>
-            <div className='flex justify-center w-full'>
-                <div className='w-full md:w-[600px] bg-[#fff] rounded-xl mt-10 px-2 py-10 shadow-lg'>
+        <div id="login" className={` relative overflow-hidden text-[#1e2430]`}>
+            <div className="login-blob login-blob-a" aria-hidden="true" />
+            <div className="login-blob login-blob-b" aria-hidden="true" />
 
-                    <form onSubmit={handleSubmit}>
-                        <div className='p-1'>                       
-                            <div className='px-8 py-10'>
-                                <div className='pb-6 space-y-2 ' >
-                                    <h2 className={`text-3xl font-bold tracking-tight`}>
-                                        Admin Portal
-                                    </h2>
-                                    <p className={`font-medium`}>Sign in to your account</p>
-                                </div> 
-                                {errorBox}
-                                <div className='mt-6'>
-                                    <label htmlFor="username" className="md:text-lg font-medium block mb-4">Enter Username</label>
-                                    <input
-                                        className="w-full text-sm border border-[#dcdcdc] rounded-3xl px-3 md:px-6 py-2 md:py-3 mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        placeholder="Username" id="username" name="username" value={form.username} onChange={handleChange} type="text" maxLength={40}></input>
-                                </div>           
-                                <div className='mt-4'>
-                                    <label htmlFor="pwd" className="md:text-lg font-medium block mb-4">Password</label>
-                                    <div className="border border-[#dcdcdc] rounded-3xl px-3 md:px-6 py-2 md:py-3 mb-4 relative ">
-                                        <input className="w-11/12 text-sm bg-transparent focus:outline-none" placeholder="Enter Your Password" id="password" name="password" maxLength={20} value={form.password} type="password" onChange={handleChange}/><span className="absolute ltr:right-5 rtl:left-5 top-1/2 cursor-pointer -translate-y-1/2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="tabler-icon tabler-icon-eye-off "><path d="M10.585 10.587a2 2 0 0 0 2.829 2.828"></path><path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87"></path><path d="M3 3l18 18"></path></svg></span>
-                                    </div>
+            <div className="relative z-10 mx-auto max-w-3xl px-6 py-10 md:py-14">
+                <div className="flex items-center gap-3">
+                    <Image src={logo.src} alt="Logo" width={120} height={78} />
+                    <div className="hidden sm:block">
+                        <p className="text-sm font-semibold tracking-wide text-slate-700">H2C Administration</p>
+                        <p className="text-xs text-slate-500">Secure access for company administrators</p>
+                    </div>
+                </div>
+
+                <div className="mt-8 grid items-stretch gap-8">
+                    <div className="login-card login-fade mx-auto w-full max-w-lg">
+                        <form onSubmit={handleSubmit}>
+                            <div className="px-6 py-7 md:px-9 md:py-9">
+                                <div className="space-y-2">
+                                    <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Admin Portal</p>
+                                    <h2 className="text-3xl font-bold tracking-tight text-slate-900">Welcome back</h2>
+                                    <p className="text-sm text-slate-600">Sign in to continue.</p>
                                 </div>
-                                
-                                <div className="mt-8 flex gap-6">
-                                    <PrimaryBtn type="submit">Login</PrimaryBtn>
+
+                                {errorBox}
+
+                                <div className="mt-5">
+                                    <label htmlFor="username" className="text-sm font-semibold text-slate-700">Username</label>
+                                    <input
+                                        className="mt-2 w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-sm shadow-sm focus:border-sky-500 focus:outline-none focus:ring-4 focus:ring-sky-100"
+                                        placeholder="Enter your username"
+                                        id="username"
+                                        name="username"
+                                        value={form.username}
+                                        onChange={handleChange}
+                                        type="text"
+                                        maxLength={40}
+                                    />
+                                </div>
+
+                                <div className="mt-4">
+                                    <label htmlFor="password" className="text-sm font-semibold text-slate-700">Password</label>
+                                    <input
+                                        className="mt-2 w-full rounded-xl border border-slate-200 bg-white/90 px-4 py-3 text-sm shadow-sm focus:border-sky-500 focus:outline-none focus:ring-4 focus:ring-sky-100"
+                                        placeholder="Enter your password"
+                                        id="password"
+                                        name="password"
+                                        maxLength={20}
+                                        value={form.password}
+                                        type="password"
+                                        onChange={handleChange}
+                                    />
+                                </div>
+
+                                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+                                    <label className="flex items-center gap-2">
+                                        <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-sky-600" />
+                                        Keep me signed in
+                                    </label>
+                                 
+                                </div>
+
+                                <div className="mt-6">
+                                    <PrimaryBtn type="submit">Sign in</PrimaryBtn>
                                 </div>
                             </div>
-                                                
-                        </div>
-                    </form>
+                        </form>
+                    </div>
+
                 </div>
             </div>
         </div>

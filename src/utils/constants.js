@@ -28,16 +28,8 @@ export const GEN_HEADER = {
 export const TUSER = {  
     name: "",
     email: "",
-    id: "",
-    account_type: 0,
-    fname: "",
-    lname: "",
-    username: "",
-    photo: "",
-    date_signup: "",
-    mobile: "",
-    activated: false,
-    rank: 0
+    fullname: "",
+    status:0
 }
 
 export const TEARNING = {
