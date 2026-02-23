@@ -5,7 +5,7 @@ import Tab from "@/components/Tab";
 export default function CodeLayout({ children }) {
 
     return (
-        <div className={`w-full px-6`}>
+        <div className={`w-full`}>
             <div className="h-full bg-white rounded-xl p-6">
                 
                 <div className="text-lg uppercase tracking-wider font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">

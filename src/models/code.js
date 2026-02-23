@@ -25,3 +25,12 @@ codeSchema.virtual('label').get(function () {
 })
 
 export default mongoose.models.code || mongoose.model("code", codeSchema);
+
+// codetype
+// 0 - BR
+// Dragnet or Binary Packages
+// 1 - Jumpstart
+// 2 - Basic
+// 3 - Pro
+// 4 - Elite
+

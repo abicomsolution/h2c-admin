@@ -73,3 +73,11 @@ export const GENERAL_SET = {
     payout_sched: 0,
     disable_payout: false
 }
+
+export const CODETYPE = [
+    { value: 0, label: "BR" },
+    { value: 1, label: "Jumpstart" },
+    { value: 2, label: "Basic" },
+    { value: 3, label: "Pro" },
+    { value: 4, label: "Elite" }
+]

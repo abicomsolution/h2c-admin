@@ -123,7 +123,7 @@ function AEForm(props) {
                     </ModalBody>     
     
     return(
-        <Modal show={showAe}  onClose={handleClose}  >            
+        <Modal show={showAe}  onClose={handleClose} >            
             {content}           
       </Modal>
     )

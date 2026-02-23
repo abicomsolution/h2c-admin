@@ -9,11 +9,13 @@ export const POST = async (request) => {
 
     var body =  await request.json();    
 
+    console.log(body)
+
     try {       
 
         await connect()    
        
-        let bErr = await generate(parseInt(body.qty), body.isCD);
+        let bErr = await generate(parseInt(body.qty), body.isCD, body.codetype);
         if (bErr){
             var _err = { name: bErr};          
             return NextResponse.json(_err, { status: 500 });
@@ -29,7 +31,7 @@ export const POST = async (request) => {
 }
 
 
-const generate = async (quantity, isCD)=>{
+const generate = async (quantity, isCD, codetype)=>{
 
     try {      
 
@@ -63,7 +65,7 @@ const generate = async (quantity, isCD)=>{
                 codenum: codenum,
                 status: 0,    
                 isCD: isCD,  
-                codetype: 0,   
+                codetype: codetype,   
             };
             console.log(mdata)
             const newCode = new Code(mdata);
