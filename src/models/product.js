@@ -24,6 +24,8 @@ const productSchema = new Schema({
     min_stock_level: { type: Number, default: 0 },
     isNonInventory: { type: Boolean, default: false },
     isHidden: { type: Boolean, default: false }, 
+    packageType: { type: Number, default: 0 }, // 0 - v1, 1 - BR, 2 - jumpstart, 3 - basic, 4 - pro, 5 - elite
+    pv: { type: Number, default: 0 }
 }, { toJSON: { virtuals: true } });
 
 productSchema.virtual('value').get(function () {

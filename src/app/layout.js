@@ -7,6 +7,7 @@ import "./globals.css";
 import "./main.css"
 import "./genealogy.css"
 import 'react-responsive-modal/styles.css';
+// import "react-datepicker/dist/react-datepicker.css";
 
 export const metadata = {
   title: "Helping Hands Community - Admin",

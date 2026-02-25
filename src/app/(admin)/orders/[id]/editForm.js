@@ -4,7 +4,7 @@ import { TableCell, TableHead, TableHeadCell, TableRow } from "flowbite-react";
 import { Check, X, Edit, Trash2 } from 'lucide-react';
 
 const controlStyle = {    
-    menuPortal: provided => ({ ...provided, zIndex: 9999 }),
+  menuPortal: provided => ({ ...provided, zIndex: 9999 }),
     menu: provided => ({ ...provided, zIndex: 9999 }),
     control: (baseStyles, state) => ({
         ...baseStyles,      
@@ -78,9 +78,9 @@ export default function EditForm(props) {
                     <TableCell className='text-center'>
                         <p>{Number(formdetails.discountedprice).toLocaleString('en', {minimumFractionDigits: 2})}</p>
                     </TableCell>
-                    <TableCell className='text-center'>                                  
+                    <TableCell className='text-center px-2'>                                  
                         <input
-                            className="w-full text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder=""   value={formdetails.qty} type="number" name='qty' onChange={handleChange}/>
                     
                     </TableCell>

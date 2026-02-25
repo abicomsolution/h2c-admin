@@ -1,32 +1,34 @@
 import { useState, useEffect } from 'react'
-import {  Modal, ModalBody, ModalHeader, ModalFooter, Checkbox, Label } from "flowbite-react";
+import {  Modal, ModalBody, ModalHeader, ModalFooter } from "flowbite-react";
 import CancelBtn from '@/components/cancelBtn'
 import PrimaryBtn from '@/components/primaryBtn';
 import { TriangleAlert } from "lucide-react";
 import Process from '@/components/process';
 import {  CircleCheck} from "lucide-react"
 import callApi from '@/utils/api-caller';
-
+import { CODETYPE } from '@/utils/constants';
 
 
 function Send(props) {
 
     const { showSend, setshowSend, onCloseSuccess, user} = props
-    const [qty, setqty] = useState(0)
+    const [qty, setqty] = useState("1")
     const [username, setusername] = useState("")
     const [verifystate, setverifystate] = useState("")
     const [errorMessage, setErrorMessage] = useState("")
     const [sendstate, setsendstate] = useState("")
     const [recipient, setrecipient] = useState(null)
+    const [codeType, setcodeType] = useState("0")
 
     useEffect(()=>{
 
         if (showSend){
-            setqty("")
+            setqty("1")
             setusername("")
             setErrorMessage("")
             setverifystate("")
             setsendstate("")
+            setcodeType("0")
         }
 
     },[showSend])
@@ -65,7 +67,7 @@ function Send(props) {
         try{
             setErrorMessage("")    
             setverifystate("verify")            
-            let params = { recipient: username, qty: qty }            
+            let params = { recipient: username, qty: qty, codetype: Number(codeType) }            
             const ret =  await callApi("/code/verify",'POST', params) 
             if (ret.status==200){    
                 setrecipient(ret.data)      
@@ -86,7 +88,7 @@ function Send(props) {
         try{
             setErrorMessage("")                
             setsendstate("send")
-            let params = { recipient: recipient._id, qty: qty }            
+            let params = { recipient: recipient._id, qty: qty, codetype: Number(codeType) }            
             const ret =  await callApi("/code/send",'POST', params) 
             if (ret.status==200){     
                 setverifystate("")             
@@ -95,15 +97,14 @@ function Send(props) {
                 setErrorMessage(ret.message)    
                 setsendstate("")
             }
-            // setTimeout(() => {
-            //     setsendstate("success")
-            // }, 2000);
 
         }catch(err){
             console.log(err)
             setErrorMessage(err.name)
         }
     }
+
+    const selectedTypeLabel = CODETYPE.find(t => t.value === Number(codeType))?.label || ""
 
     var errorBox = null
     if (errorMessage) {
@@ -115,20 +116,46 @@ function Send(props) {
     }
 
     let content =  <ModalBody>              
-                        <ModalHeader className='border-b-gray-200 pl-0'>Send Codes</ModalHeader>
+                        <ModalHeader className='border-b-gray-200 pl-0 py-2'>Send Codes</ModalHeader>
                         {errorBox}
-                        <div className='mt-6'>
-                            <label htmlFor="username" className="md:text-lg font-medium block mb-4">Enter the username of the recipient</label>
-                            <input
-                                className="w-full text-sm border border-[#dcdcdc] rounded-3xl px-3 md:px-6 py-2 md:py-3 mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="" id="username" name="username" value={username} onChange={handleChange} type="text" maxLength={40}></input>
-                        </div>      
-                        <div className='mt-2'>
-                            <label htmlFor="qty" className="md:text-lg font-medium block mb-4">How many codes would you like to send?</label>
-                            <input
-                                className="text-sm border border-[#dcdcdc] rounded-3xl px-3 md:px-6 py-2 md:py-3 mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="" id="qty" name="qty" value={qty} onChange={handleChangeQty} type="number" maxLength={40}></input>
-                        </div>      
+                        <div className='mt-6 flex flex-col gap-6'>
+                            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                                <label htmlFor="username" className="text-sm font-semibold text-slate-700">Recipient username</label>
+                                <div className="mt-3">
+                                    <input
+                                        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-100"
+                                        placeholder="Enter username" id="username" name="username" value={username} onChange={handleChange} type="text" maxLength={40}
+                                    />
+                                </div>
+                            </div>
+                            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                                <p className="text-sm font-semibold text-slate-700">Code type</p>
+                                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                                    {CODETYPE.map((item) => (
+                                        <label key={item.value} className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700 transition hover:border-slate-300">
+                                            <input
+                                                type="radio"
+                                                name="codeType"
+                                                value={String(item.value)}
+                                                checked={codeType === String(item.value)}
+                                                onChange={(event) => setcodeType(event.target.value)}
+                                                className="h-4 w-4 border-slate-300 text-slate-700"
+                                            />
+                                            <span className="font-semibold">{item.label}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                                <label htmlFor="qty" className="text-sm font-semibold text-slate-700">Quantity to send</label>
+                                <div className="mt-3">
+                                    <input
+                                        className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-100"
+                                        placeholder="Enter quantity" id="qty" name="qty" value={qty} onChange={handleChangeQty} type="number" maxLength={40}
+                                    />
+                                </div>
+                            </div>
+                        </div>
 
                         <ModalFooter className='justify-end'>                    
                             <CancelBtn onClick={handleClose}>
@@ -144,39 +171,44 @@ function Send(props) {
         content = <ModalBody><Process/></ModalBody>    
     } else if (verifystate=="success"){
         content =  <ModalBody>              
-                        <ModalHeader className='border-b-gray-200 pl-0'>Confirmation</ModalHeader>
+                        <ModalHeader className='border-b-gray-200 pl-0 py-2'>Confirmation</ModalHeader>
                         {errorBox}
-                        <div className='mt-6'>
-                            <label className="md:text-lg font-medium block mb-4">Please confirm sending codes to:</label>
-                            <input
-                            className="w-full text-sm border border-[#dcdcdc] rounded-3xl disabled:bg-gray-100 disabled:text-gray-500 px-3 md:px-6 py-2 md:py-3 mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            value={recipient?.fullname + " - (" + recipient?.username + ")"} disabled />
-                        </div>      
-                        <div className='mt-2'>
-                            <label className="md:text-lg font-medium block mb-4">Number of codes</label>
-                            <input
-                            className="w-full text-sm border border-[#dcdcdc] rounded-3xl disabled:bg-gray-100 disabled:text-gray-500 px-3 md:px-6 py-2 md:py-3 mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            value={qty} disabled />
-                        </div>      
+                        <div className='mt-6 flex flex-col gap-5'>
+                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Recipient</p>
+                                <p className="mt-1 text-sm font-semibold text-slate-700">{recipient?.fullname} <span className="font-normal text-slate-500">({recipient?.username})</span></p>
+                            </div>
+                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Code Type</p>
+                                <p className="mt-1 text-sm font-semibold text-slate-700">{selectedTypeLabel}</p>
+                            </div>
+                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Quantity</p>
+                                <p className="mt-1 text-sm font-semibold text-slate-700">{qty}</p>
+                            </div>
+                        </div>
 
                         <ModalFooter className='justify-end'>                    
                             <CancelBtn onClick={handleBack}>
-                            Back
+                                Back
                             </CancelBtn>
                             <PrimaryBtn type="button" onClick={handleConfirm}>
-                            Confirm
+                                Confirm
                             </PrimaryBtn>
                         </ModalFooter>                
                 </ModalBody>
 
     }else if (sendstate=="success"){
         content =  <ModalBody>
-                        <div className='flex justify-center items-center'>                
-                            <CircleCheck color="#37c366" className='h-18 w-18 text-green-700' />                        
-                        </div>     
-                        <p className='text-center mt-4 text-xl font-semibold'>Codes successfully sent.</p>
-                        <div className='flex justify-center mt-6'>
-                            <PrimaryBtn type="button"  onClick={()=>onCloseSuccess()}>Close</PrimaryBtn>                            
+                        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
+                            <div className='flex justify-center items-center'>
+                                <CircleCheck color="#37c366" className='h-18 w-18 text-green-700' />
+                            </div>
+                            <p className='mt-4 text-center text-xl font-semibold text-emerald-800'>Codes successfully sent.</p>
+                            <p className='mt-2 text-center text-sm text-emerald-700'>The recipient can now use the codes.</p>
+                            <div className='mt-6 flex justify-center'>
+                                <PrimaryBtn type="button"  onClick={()=>onCloseSuccess()}>Close</PrimaryBtn>
+                            </div>
                         </div>
                     </ModalBody>
     }

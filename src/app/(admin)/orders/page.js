@@ -1,7 +1,6 @@
 "use client"
 import DataTable from 'react-data-table-component';
-import React, { useEffect, useState} from 'react';
-import { Search } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import callApi from '@/utils/api-caller';
@@ -13,103 +12,83 @@ import { createPortal } from 'react-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { pad } from '@/utils/functions';
 import ConfirmDelete from './confirm';
+import { ShoppingCart, ClipboardCheck, Clock, EllipsisVertical } from 'lucide-react';
 
 export default function Orders(props) {
 
     const session = useSession()
-    const [initialized, setinitialized] = useState(false) 
+    const [initialized, setinitialized] = useState(false)
 
     const router = useRouter();
     const [orders, setorders] = useState([]);
     const [loadstate, setloadstate] = useState("")
-    const [search, setsearch] = useState("")
+    const [searchTerm, setsearchTerm] = useState("")
+    const [statusFilter, setStatusFilter] = useState("all")
     const [showConfirm, setshowConfirm] = useState(false)
     const [selectedOrder, setselectedOrder] = useState(null)
-    
-    
+
     useEffect(() => {
-    
         if (session.status === "unauthenticated") {
             router.replace("/login");
-        }else if (session.status=="authenticated"){                 
-            setinitialized(true)                
+        } else if (session.status == "authenticated") {
+            setinitialized(true)
         }
-    
     }, [session])
 
-
     useEffect(() => {
-        
-        if (initialized){        
-            init()   
+        if (initialized) {
+            init()
         }
-        
     }, [initialized])
 
-
-    const init = async ()=>{
-      
-        try{                 
-            const ret =  await callApi("/order") 
-            if (ret.status==200){                
+    const init = async () => {
+        try {
+            const ret = await callApi("/order")
+            if (ret.status == 200) {
                 setorders(ret.data)
                 setloadstate("success")
-            }else{              
+            } else {
                 setloadstate("")
             }
-
-        }catch(err){
+        } catch (err) {
             console.log(err)
             setloadstate("")
         }
-        
     }
 
-
-    const searchNow = async (searchTerm)=>{
-        // setloadstate("loading")     
-        // try{                 
-        //     const ret =  await callApi("/member/search", "POST", {search: searchTerm}) 
-        //     if (ret.status==200){                
-        //         setorders(ret.data)
-        //         setloadstate("success")
-        //     }else{              
-        //         setloadstate("")
-        //     }
-
-        // }catch(err){
-        //     console.log(err)
-        //     setloadstate("")
-        // }
-        
-    }
-
-    const handleChange = (e)=>{
-        setsearch(e.target.value)
-    }
-
-    const handleDelete = async ()=>{
+    const handleDelete = async () => {
         setshowConfirm(false)
         toast.success("Order deleted successfully!")
         init()
     }
-   
-    useEffect(()=>{
-        const delayDebounceFn = setTimeout(() => {
-            // Send Axios request here
-            if (search.length===0) {
-                init()
-            }else{
-            searchNow(search)            
-            }                
-        }, 500)
 
-        return () => clearTimeout(delayDebounceFn)
+    const stats = useMemo(() => {
+        const total = orders.length
+        const open = orders.filter(o => o.status == 0).length
+        const posted = orders.filter(o => o.status == 1).length
+        const totalAmount = orders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0)
+        return { total, open, posted, totalAmount }
+    }, [orders])
 
-    }, [search])
+    const filteredOrders = useMemo(() => {
+        const normalized = searchTerm.trim().toLowerCase()
+        return orders.filter(o => {
+            const matchesSearch =
+                normalized === "" ||
+                pad(o.order_num, 6)?.toLowerCase().includes(normalized) ||
+                o.member_id?.username?.toLowerCase().includes(normalized) ||
+                o.member_id?.fullname?.toLowerCase().includes(normalized)
+
+            const matchesStatus =
+                statusFilter === "all" ||
+                (statusFilter === "open" && o.status == 0) ||
+                (statusFilter === "posted" && o.status == 1)
+
+            return matchesSearch && matchesStatus
+        })
+    }, [orders, searchTerm, statusFilter])
 
     const renderCol = (row) => {
-
         const [open, setOpen] = React.useState(false);
         const [menuPosition, setMenuPosition] = React.useState({ top: 0, left: 0 });
         const buttonRef = React.useRef(null);
@@ -118,22 +97,21 @@ export default function Orders(props) {
         const handleToggle = () => {
             if (!open && buttonRef.current) {
                 const rect = buttonRef.current.getBoundingClientRect();
-                setMenuPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
+                setMenuPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX - 100 });
             }
             setOpen((prev) => !prev);
         };
 
-
-        const handleGo = (url)=>{          
-            router.push(url);   
+        const handleGo = (url) => {
+            router.push(url);
         }
 
-        const handleDelete = (row)=>{
+        const handleDeleteClick = (row) => {
             setshowConfirm(true);
             setselectedOrder(row);
-            setOpen(false); 
+            setOpen(false);
         }
-        
+
         React.useEffect(() => {
             if (!open) return;
             function handleClick(event) {
@@ -153,120 +131,214 @@ export default function Orders(props) {
         const dropdownMenu = (
             <div
                 ref={menuRef}
-                className={`z-[9999] absolute mt-1 w-48 origin-top-left bg-white border border-gray-200 divide-y divide-gray-100 rounded-md shadow-xl focus:outline-none`}
+                className="z-[9999] absolute mt-1 w-40 origin-top-right bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden"
                 style={{ top: menuPosition.top, left: menuPosition.left, position: 'absolute' }}
             >
-                
-                <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" onClick={() => handleGo(`/orders/${row._id}`)}>{row.status==0?"Edit":"View"}</button>
-                {
-                    row.status==0 && <button className="block w-full text-left text-sky-700 font-medium px-4 py-2 hover:bg-gray-100" onClick={() => handleDelete(row)}>Delete</button>            
-                }
-                
+                <button className="block w-full text-left text-sm font-medium text-slate-700 px-4 py-2.5 hover:bg-slate-50 transition" onClick={() => handleGo(`/orders/${row._id}`)}>{row.status == 0 ? "Edit" : "View"}</button>
+                {row.status == 0 && (
+                    <button className="block w-full text-left text-sm font-medium text-red-600 px-4 py-2.5 hover:bg-red-50 transition" onClick={() => handleDeleteClick(row)}>Delete</button>
+                )}
             </div>
         );
 
         return (
-            <div className={`relative inline-block text-left w-full`}>
+            <div className="relative inline-block text-left">
                 <button
                     ref={buttonRef}
-                    className="bg-blue-600 text-white px-2 py-2 rounded-full shadow  w-full"
+                    className="flex items-center justify-center h-8 w-8 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
                     onClick={handleToggle}
                     type="button"
                 >
-                    Action
+                    <EllipsisVertical className="h-4 w-4" />
                 </button>
                 {open && typeof window !== 'undefined' && createPortal(dropdownMenu, document.body)}
             </div>
         );
     }
 
-    console.log("orders", orders)
+    let content = <PreLoader />
 
-    let content = <PreLoader/>
-
-  
     const columns = [
         {
             name: "",
-            cell: row => renderCol(row),         
-            width: "120px",
+            cell: row => renderCol(row),
+            width: "60px",
         },
         {
             name: 'Order #',
-            selector:  row =>  pad(row.order_num, 6),			
+            selector: row => pad(row.order_num, 6),
             sortable: true,
-            width: "120px"
+            width: "120px",
+            cell: row => <span className="text-sm font-mono font-semibold text-slate-600">{pad(row.order_num, 6)}</span>
         },
         {
-            name: "Date/Time",
-            selector:  row => moment(row.transdate).format("MMM-DD-YYYY"),
+            name: "Date",
+            selector: row => row.transdate,
             sortable: true,
-            width: "160px",                   
+            width: "140px",
+            cell: row => <span className="text-sm text-slate-500">{moment(row.transdate).format("MMM DD, YYYY")}</span>
         },
         {
             name: 'Member',
-            selector:  row => "(" +row.member_id?.username +") - " + row.member_id?.fullname,
+            selector: row => row.member_id?.fullname,
             sortable: true,
-            width: "300px",                    
+            width: "260px",
+            cell: row => (
+                <div className="py-1">
+                    <p className="text-sm font-semibold text-slate-700 leading-tight">{row.member_id?.fullname}</p>
+                    <p className="text-xs text-slate-400">@{row.member_id?.username}</p>
+                </div>
+            )
         },
         {
-            name: 'Sub Total',			
-            right: 'true',
-            minWidth: "200px",
+            name: 'Sub Total',
+            right: true,
             sortable: true,
-            selector: row => <p className="mb-0">{Number(row.subtotal || 0).toLocaleString('en', {minimumFractionDigits: 2})}</p>
+            width: "140px",
+            selector: row => row.subtotal,
+            cell: row => <span className="text-sm text-slate-500">{Number(row.subtotal || 0).toLocaleString('en', { minimumFractionDigits: 2 })}</span>
         },
         {
-            name: 'Total Amount',			
-            right: 'true',
-            minWidth: "200px",
+            name: 'Total',
+            right: true,
             sortable: true,
-            selector: row => <p className="mb-0">{Number(row.total_amount || 0).toLocaleString('en', {minimumFractionDigits: 2})}</p>
+            width: "140px",
+            selector: row => row.total_amount,
+            cell: row => <span className="text-sm font-semibold text-slate-700">{Number(row.total_amount || 0).toLocaleString('en', { minimumFractionDigits: 2 })}</span>
         },
         {
             name: 'Status',
-            selector:  row => row.status==1?<p className="bg-green-400 px-4 py-2 rounded-4xl text-white font-semibold">Posted</p>:<p className="bg-yellow-400 px-4 py-2 rounded-4xl text-white font-semibold">Open</p>,
+            center: true,
             sortable: true,
-            width: "120px"
+            width: "120px",
+            selector: row => row.status,
+            cell: row => (
+                <span className={
+                    row.status == 1
+                        ? "inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700"
+                        : "inline-flex items-center rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700"
+                }>
+                    {row.status == 1 ? "Posted" : "Open"}
+                </span>
+            )
         },
-        
     ];
 
-    if (loadstate==="success"){
-        content =  <DataTable
-                        noHeader
-                        pagination
-                        columns={columns}
-                        data={orders}
-                        noDataComponent={<NoRecord/>}
-                        customStyles={customStyles}
-                    />
+    if (loadstate === "success") {
+        content = <DataTable
+            noHeader
+            pagination
+            columns={columns}
+            data={filteredOrders}
+            noDataComponent={<NoRecord />}
+            customStyles={customStyles}
+            highlightOnHover
+            pointerOnHover
+        />
     }
 
-   
     return (
-        <div className={`w-full px-6`}>                    
-            <div className="h-full bg-white rounded-xl p-6 ">
-                 <div className="md:flex justify-between">              
-                    <div className="border border-[#dcdcdc] rounded-3xl px-3 md:px-6 py-2 md:py-3 mb-4 relative mt-2">
-                        <input className="w-11/12 text-sm bg-transparent focus:outline-none" placeholder="Search...." id="search" name="search" value={search}  type="text" onChange={handleChange}/>
-                            <span className="absolute ltr:right-5 rtl:left-5 top-1/2 cursor-pointer -translate-y-1/2">
-                                <Search className='h-6 w-6'/>
-                            </span>
-                    </div>    
-                    <div className="mt-4 md:mt-0">
-                        <PrimaryBtn type="button" onClick={() => router.push("/orders/add")} >Add New Order </PrimaryBtn>                    
-                    </div>                
-                </div>
-                <div className='mt-4 relative z-10'>
-                    <div className='overflow-x-auto'>
-                        {content}
+        <div className="mt-4 px-2">
+            <section className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 via-white to-sky-50 p-6 shadow-sm">
+                <div className="absolute -right-24 -top-16 h-48 w-48 rounded-full bg-sky-100/70 blur-3xl" />
+                <div className="absolute -left-24 bottom-0 h-48 w-48 rounded-full bg-amber-100/70 blur-3xl" />
+                <div className="relative z-10">
+                    <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                        <div>
+                            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Order Management</p>
+                            <h1 className="mt-2 text-2xl font-semibold text-slate-800">Manage your orders</h1>
+                            <p className="mt-2 max-w-xl text-sm text-slate-500">
+                                Track, review, and manage all customer orders. Monitor order status and totals at a glance.
+                            </p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            <PrimaryBtn type="button" onClick={() => router.push("/orders/add")}>Add New Order</PrimaryBtn>
+                        </div>
+                    </div>
+                    <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        <div className="rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-50">
+                                    <ShoppingCart className="h-5 w-5 text-sky-600" />
+                                </div>
+                                <div>
+                                    <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Total Orders</p>
+                                    <p className="mt-1 text-2xl font-semibold text-slate-800">{stats.total}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50">
+                                    <Clock className="h-5 w-5 text-amber-600" />
+                                </div>
+                                <div>
+                                    <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Open</p>
+                                    <p className="mt-1 text-2xl font-semibold text-slate-800">{stats.open}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
+                                    <ClipboardCheck className="h-5 w-5 text-emerald-600" />
+                                </div>
+                                <div>
+                                    <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Posted</p>
+                                    <p className="mt-1 text-2xl font-semibold text-slate-800">{stats.posted}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-50">
+                                    <ShoppingCart className="h-5 w-5 text-violet-600" />
+                                </div>
+                                <div>
+                                    <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Total Amount</p>
+                                    <p className="mt-1 text-xl font-semibold text-slate-800">{stats.totalAmount.toLocaleString('en', { minimumFractionDigits: 2 })}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>                  
-            <Toaster position="top-center" reverseOrder={false}/>
-              <ConfirmDelete 
-                showConfirm={showConfirm} 
+            </section>
+
+            <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                        <h2 className="text-lg font-semibold text-slate-800">All Orders</h2>
+                        <p className="text-sm text-slate-500">Browse and manage all customer orders.</p>
+                    </div>
+                    <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                        <div className="relative w-full sm:max-w-xs">
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(e) => setsearchTerm(e.target.value)}
+                                placeholder="Search order # or member"
+                                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-600 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-100"
+                            />
+                        </div>
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-600 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-100 sm:max-w-[180px]"
+                        >
+                            <option value="all">All statuses</option>
+                            <option value="open">Open</option>
+                            <option value="posted">Posted</option>
+                        </select>
+                    </div>
+                </div>
+                <div className="mt-4 overflow-x-auto">
+                    {content}
+                </div>
+            </section>
+
+            <Toaster position="top-center" reverseOrder={false} />
+            <ConfirmDelete
+                showConfirm={showConfirm}
                 setshowConfirm={setshowConfirm}
                 onYes={handleDelete}
                 selectedOrder={selectedOrder}
@@ -276,60 +348,57 @@ export default function Orders(props) {
 }
 
 
-
 const customStyles = {
     rows: {
         style: {
-            fontSize: "15px",            
-            // minHeight: '50px',
-            color: "#404a60",  
-            paddingTop: '18px',  
-            paddingBottom: '18px',              
-            opacity: 0.9,
-             '&:not(:last-of-type)': {
+            fontSize: "14px",
+            color: "#334155",
+            paddingTop: '16px',
+            paddingBottom: '16px',
+            opacity: 0.92,
+            '&:not(:last-of-type)': {
                 borderBottomStyle: 'solid',
                 borderBottomWidth: '1px',
-                borderBottomColor: "#e5e7ebad"
+                borderBottomColor: "#e2e8f0"
+            },
+            '&:hover': {
+                backgroundColor: "#f8fafc"
             },
             overflow: "visible !important"
         }
     },
     headRow: {
         style: {
-            borderBottomColor: "#e5e7eb"
+            borderBottomColor: "#e2e8f0"
         }
     },
     headCells: {
         style: {
-            fontSize: "16px",
-            fontWeight: "800",
-            paddingTop: '18px',  
-            paddingBottom: '18px',  
-            backgroundColor: "#4371e90d",
-            color: "#404a60"           
+            fontSize: "13px",
+            fontWeight: "700",
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            paddingTop: '16px',
+            paddingBottom: '16px',
+            backgroundColor: "#f8fafc",
+            color: "#64748b"
         }
     },
     cells: {
         style: {
-            padding: '0px 16px',            
-            backgroundColor: "#fff"          
+            padding: '0px 16px',
+            backgroundColor: "#fff"
         },
-     
     },
     pagination: {
         style: {
             backgroundColor: "#fff",
-          
-
-        },
-        pageButtonsStyle: {
-            fill: "#fff"
         }
     },
     noData: {
         style: {
             backgroundColor: "#fff",
-            color: "#fff"
+            color: "#475569"
         }
     }
 };

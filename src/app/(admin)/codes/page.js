@@ -350,9 +350,6 @@ const customStyles = {
         style: {
             backgroundColor: "#fff",
         },
-        pageButtonsStyle: {
-            fill: "#fff"
-        }
     },
     noData: {
         style: {

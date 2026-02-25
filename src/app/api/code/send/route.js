@@ -18,7 +18,8 @@ export const POST = async (request) => {
     
         let params = {     
             status: 0,
-            member_id: '68bbcda70b12e0477ccb75df'                
+            member_id: '68bbcda70b12e0477ccb75df',
+            codetype: body.codetype ?? 0
         }
         let bCodes = await Code.find(params).limit(parseInt(body.qty))        
         if (parseInt(body.qty)>bCodes.length){

@@ -75,9 +75,10 @@ export const GENERAL_SET = {
 }
 
 export const CODETYPE = [
-    { value: 0, label: "BR" },
-    { value: 1, label: "Jumpstart" },
-    { value: 2, label: "Basic" },
-    { value: 3, label: "Pro" },
-    { value: 4, label: "Elite" }
+    { value: 0, label: "H2C 1.0" },
+    { value: 1, label: "BR" },
+    { value: 2, label: "Jumpstart" },
+    { value: 3, label: "Basic" },
+    { value: 4, label: "Pro" },
+    { value: 5, label: "Elite" }
 ]

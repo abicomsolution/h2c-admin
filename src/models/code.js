@@ -10,10 +10,10 @@ const codeSchema = new Schema({
     datetime_sent: { type: Date, default: null },
     datetime_used: { type: Date, default: null },
     codenum: { type: 'String' },
-    status: { type: Number, default: 0 },
     isCD: { type: Boolean, default: false },
-    order_id: { type: Schema.Types.ObjectId, ref: 'order_header' },
+    status: { type: Number, default: 0 },
     codetype: { type: Number, default: 0 },   
+    order_id: { type: Schema.Types.ObjectId, ref: 'order_header' },
 }, { toJSON: { virtuals: true } });
 
 codeSchema.virtual('value').get(function () {
@@ -21,16 +21,36 @@ codeSchema.virtual('value').get(function () {
 })
 
 codeSchema.virtual('label').get(function () {    
-    return this.codenum;
+    var retS = ""
+    if (this.codetype == 0) {
+        retS = this.codenum + " - H2C 1.0";   
+    } else if (this.codetype == 1) {
+        retS = this.codenum + " - BR";   
+    } else if (this.codetype == 2) {
+        retS = this.codenum + " - Jumpstart";   
+    } else if (this.codetype == 3) {
+        retS = this.codenum + " - Basic";   
+    } else if (this.codetype == 4) {
+        retS = this.codenum + " - Pro";   
+    } else if (this.codetype == 5) {
+        retS = this.codenum + " - Elite";   
+    }
+
+    if (this.isCD) {
+        retS = retS + " (CD)";   
+    }
+    return retS;
 })
 
 export default mongoose.models.code || mongoose.model("code", codeSchema);
 
+
 // codetype
-// 0 - BR
-// Dragnet or Binary Packages
-// 1 - Jumpstart
-// 2 - Basic
-// 3 - Pro
-// 4 - Elite
+// 0 - H2C 1.0
+// 1 - BR
+// 2 - Jumpstart
+// 3 - Basic
+// 4 - Pro
+// 5 - Elite
+
 

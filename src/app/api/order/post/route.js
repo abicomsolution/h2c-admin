@@ -215,7 +215,7 @@ const generateActivateCode = async (id, item, order)=>{
                 codenum: codenum,
                 status: 0,    
                 isCD: false,  
-                codetype: 0, 
+                codetype: item.product_id.packageType, 
                 order_id: order._id  
             };
             // console.log(mdata)

@@ -1,21 +1,19 @@
 "use client"
-import DataTable from 'react-data-table-component';
-import React, { useEffect, useState} from 'react';
-import { Search } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { usePageTitle } from "@/context/PageTitleProvider";
 import callApi from '@/utils/api-caller';
 import PreLoader from '@/components/preloader';
-import moment from 'moment';
-import { TriangleAlert, ArrowLeft } from "lucide-react";
+import { TriangleAlert, ArrowLeft, Upload, ImagePlus } from "lucide-react";
 import PrimaryBtn from "@/components/primaryBtn";
 import CancelBtn from '@/components/cancelBtn';
 import toast, { Toaster } from 'react-hot-toast';
 import NoPhoto from '../../../../assets/product.png'
 import Select from 'react-select'
 import { Checkbox, Label } from "flowbite-react";
+import { CODETYPE } from '@/utils/constants';
 import _ from 'lodash';
 
 const initForm = {
@@ -43,22 +41,33 @@ const initForm = {
     min_stock_level: 0,
     isNonInventory: false,
     isHidden: false,	
+    pv: 0
 }
 
 
-const controlStyle = {    
+const selectStyles = {    
     menuPortal: provided => ({ ...provided, zIndex: 9999 }),
-    menu: provided => ({ ...provided, zIndex: 9999 }),
+    menu: provided => ({ ...provided, zIndex: 9999, borderRadius: '12px', overflow: 'hidden' }),
     control: (baseStyles, state) => ({
         ...baseStyles,      
-        paddingLeft: "10px",
-        paddingRight: "10px",
-        paddingTop: "4px",
-        paddingBottom: "4px",
-        borderRadius: "20px"
+        padding: "6px 8px",
+        borderRadius: "12px",
+        borderColor: state.isFocused ? "#94a3b8" : "#e2e8f0",
+        backgroundColor: "#f8fafc",
+        fontSize: "14px",
+        boxShadow: state.isFocused ? "0 0 0 2px rgba(186,230,253,0.4)" : "none",
+        '&:hover': { borderColor: "#cbd5e1" },
     }),
-   
+    option: (provided, state) => ({
+        ...provided,
+        fontSize: "14px",
+        backgroundColor: state.isSelected ? "#f1f5f9" : state.isFocused ? "#f8fafc" : "#fff",
+        color: "#334155",
+    }),
 }
+
+const inputClass = "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 placeholder-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:bg-slate-100 disabled:text-slate-400"
+const labelClass = "text-sm font-semibold text-slate-700"
 
 
 export default function Product(props) {
@@ -144,7 +153,6 @@ export default function Product(props) {
                 image.src = reader.result;
                 image.onload = function() {
                     if(image.width < 120 || image.height < 120){
-                        // seterrorMessage("Photo is too small. Should be at least 120 x 120.")                         
                          toast('Photo is too small. Should be at least 120 x 120.',
                             {
                               icon: '❌',
@@ -217,6 +225,12 @@ export default function Product(props) {
         setForm({ ...formdata, isHidden: !formdata.isHidden })
     }
 
+    const handleChangePackageType = (e)=>{
+        setSaveState("")       
+        setErrorMessage("")
+        setForm({ ...formdata, packageType: Number(e.target.value) })
+    }
+
     const handleSave = async ()=>{
       
         if (_.isEmpty(formdata.photo_thumb) && _.isEmpty(photo)) {
@@ -259,10 +273,6 @@ export default function Product(props) {
                      setSaveState("") 
                      setErrorMessage(ret.name)
                 }
-                // setTimeout(() => {
-                //     setSaveState("success")
-                //     toast.success('Product successfully saved!')
-                // }, 2000);
                 setErrorMessage("") 
             }catch(err){
                 console.log(err)
@@ -279,218 +289,292 @@ export default function Product(props) {
 
     let content = <PreLoader/>
 
-  
- 
-    var photoBog = ""    
-    if (photo){
-        photoBog =  <div className='bg-[#fff] border border-[#fff] rounded-3xl p-1'>                              
-                        <img alt="H2c" src={photo.path} width={200} height={200} className="rounded-3xl h-[200px] w-[200px]"/>                        
-                    </div> 
-    }else{
-        if (formdata.photo_thumb){
-            photoBog = <div className='bg-[#fff] border border-[#fff] rounded-3xl p-1'>                              
-                        <img alt="H2c" src={formdata.photo_thumb} width={200} height={200} className="rounded-3xl h-[200px] w-[200px]"/>                        
-                    </div> 
-            }else{
-            photoBog = <div className='bg-[#f1f1f1] border border-[#fff] rounded-3xl p-1'>                            
-                    <img alt="H2c" src={NoPhoto.src} width={200} height={200} className="rounded-3xl h-[200px] w-[200px]"/>
-                </div> 
-            }
-        
+    // Photo display
+    const photoSrc = photo ? photo.path : formdata.photo_thumb || null;
+
+    let packageTypeBox = null
+    if (!formdata.isNonInventory) {
+        packageTypeBox = (
+            <div className="flex items-start gap-3">
+                <div className="mt-0.5">
+                    <Checkbox id="isProdPackage" checked={formdata.isProdPackage} onChange={handleChangeProdPackage}/>
+                </div>
+                <div>
+                    <Label htmlFor="isProdPackage" className="text-sm font-semibold text-slate-700">Product Package</Label>
+                    <p className="text-xs text-slate-400">Mark if this product is sold as a package.</p>
+                </div>
+            </div>
+        )
+    }
+
+    let memberPack = null
+    if (formdata.isProdPackage) {
+        memberPack = (
+            <>
+                <div className="flex items-start gap-3">
+                    <div className="mt-0.5">
+                        <Checkbox id="isMembership" checked={formdata.isMembership} onChange={handleChangeMembership}/>
+                    </div>
+                    <div>
+                        <Label htmlFor="isMembership" className="text-sm font-semibold text-slate-700">Membership Package</Label>
+                        <p className="text-xs text-slate-400">Enable if this package grants membership.</p>
+                    </div>
+                </div>
+                {formdata.isMembership && (
+                    <div className="ml-7 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <p className="text-sm font-semibold text-slate-700 mb-3">Package Type</p>
+                        <div className="grid gap-2 sm:grid-cols-3">
+                            {CODETYPE.map((item) => (
+                                <label key={item.value} className="flex cursor-pointer items-center gap-2.5 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 transition hover:border-slate-300">
+                                    <input
+                                        type="radio"
+                                        name="packageType"
+                                        value={item.value}
+                                        checked={formdata.packageType === item.value}
+                                        onChange={handleChangePackageType}
+                                        className="h-4 w-4 border-slate-300 text-slate-700"
+                                    />
+                                    <span className="font-medium">{item.label}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </>
+        )
+    }
+
+    var errorBox = null
+    if (errorMessage) {
+        errorBox = <div className="flex gap-2 bg-[#e12d2dbf] p-2 my-4 rounded-xl">
+                    <TriangleAlert  className="h-6 w-6 text-white flex-shrink-0" strokeWidth={3} />
+                    <span className="text-sm font-bold text-white">{errorMessage}</span>
+                </div>
     }
 
     if (loadstate==="success"){
         content = ""
     }
 
-    var packageTypeBox = <div className="-mt-2 ml-2">
-                                <Checkbox id="isProdPackage" checked={formdata.isProdPackage} onChange={handleChangeProdPackage}/>
-                                <Label htmlFor="isProdPackage" className="ml-3 text-base font-medium -mt-1">
-                                    Is Product Package
-                                </Label>
-                            </div>
-
-    var memberPack =  <div className="-mt-2 ml-2">
-                        <Checkbox id="isMembership" checked={formdata.isMembership} onChange={handleChangeMembership}/>
-                        <Label htmlFor="isMembership" className="ml-3 text-base font-medium -mt-1">
-                            This is a Membership Package
-                        </Label>
-                    </div>
-
-    if (formdata.isNonInventory) {            
-        packageTypeBox = null	
-    }
-
-    if (!formdata.isProdPackage) {			
-		memberPack = null	
-	}
-
-    var errorBox = null
-    if (errorMessage) {
-        errorBox = <div className="flex gap-2 bg-[#e12d2dbf] p-2 my-4">
-                    <TriangleAlert  className="h-6 w-6  text-white" strokeWidth={3} />
-                    <span className="text-base font-bold text-white">{errorMessage}</span>
-                </div>
-                   
-    }
-
     return (
-        <div className={`w-full px-6 pb-10`}>                    
-            <div className="bg-white rounded-xl p-6 px-12">
-                { errorBox}
-                <div className='mt-4 grid grid-cols-1 md:grid-cols-2 gap-12'>
-                    <div className='space-y-5'>
-                        <div className='flex gap-6'>                      
-                            {photoBog}
-                            <div className='flex items-center'>
-                                <input type="file"
-                                    id="uploadBtn"
-                                    multiple
-                                    accept="image/*"
-                                    className="custom-file-input hidden"
-                                    onChange={handleUploadChange}/>                                                    
-                                <label className="btn-primary" htmlFor="uploadBtn">
-                                        Upload Photo
-                                </label>      
-                            </div>                                
-                        </div>
+        <div className="mt-4 px-2 pb-10">
+            {/* Header */}
+            <section className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 via-white to-sky-50 p-6 shadow-sm">
+                <div className="absolute -right-24 -top-16 h-48 w-48 rounded-full bg-sky-100/70 blur-3xl" />
+                <div className="absolute -left-24 bottom-0 h-48 w-48 rounded-full bg-amber-100/70 blur-3xl" />
+                <div className="relative z-10">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <label className="md:text-lg font-medium block text-[#404758] mb-2">Product Code <span className='text-red-500 text-xs'>*</span> </label>
-                            <input
-                                className="w-full text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="Product Code" id="code" value={formdata.code} type="text" name='code' onChange={handleChange}/>
+                            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Product Catalog</p>
+                            <h1 className="mt-2 text-2xl font-semibold text-slate-800">
+                                {params?.id === 'add' ? 'Add New Product' : 'Edit Product'}
+                            </h1>
+                            <p className="mt-1 text-sm text-slate-500">
+                                {params?.id === 'add' ? 'Fill in the details below to add a new product.' : 'Update the product information below.'}
+                            </p>
                         </div>
-                        <div>
-                            <label className="md:text-lg font-medium block text-[#404758] mb-2">Province <span className='text-red-500 text-xs'>*</span> </label>
-                            <Select  isClearable={true} menuPortalTarget={typeof document !== "undefined" ? document.body : null} styles={controlStyle} options={categories} value={formdata.category_id}   onChange={handleChangeCat} />                            
-                        </div>
-                        <div>
-                            <label className="md:text-lg font-medium block text-[#404758] mb-2">Product Name <span className='text-red-500 text-xs'>*</span> </label>
-                            <input
-                                className="w-full text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 mb-5 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="Product Name" id="name" value={formdata.productname} type="text" name='productname' onChange={handleChange}/>
-                        </div>
-                        <div className='grid grid-cols-2 gap-4'>
-                            <div>
-                                <label className="md:text-lg font-medium block text-[#404758] mb-2">Unit of Measurement <span className='text-red-500 text-xs'>*</span> </label>
-                                <input
-                                    className="w-full text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 mb-5 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="Unit of Measurement" id="uom" value={formdata.uom} type="text" name='uom' onChange={handleChange}/>
-                            </div>
-                             <div>
-                                <label className="md:text-lg font-medium block text-[#404758] mb-2">Weight (kg)<span className='text-red-500 text-xs'>*</span> </label>
-                                <input
-                                    className="w-full text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 mb-5 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="Weight" id="weight" value={formdata.weight} type="number" name='weight' onChange={handleChange}/>
-                            </div>
-                        </div>            
-                         <div className='grid grid-cols-2 gap-4'>
-                            <div>
-                                <label className="md:text-lg font-medium block text-[#404758] mb-2">Unit Cost <span className='text-red-500 text-xs'>*</span> </label>
-                                <input
-                                    className="w-full text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 mb-5 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="Unit Cost" id="unit_cost" value={formdata.unit_cost} type="number" name='unit_cost' onChange={handleChange}/>
-                            </div>
-                             <div>
-                                <label className="md:text-lg font-medium block text-[#404758] mb-2">Minimum Stock Level <span className='text-red-500 text-xs'>*</span> </label>
-                                <input
-                                    className="w-full text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 mb-5 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="Minimum Stock Level" id="min_stock_level" value={formdata.min_stock_level} type="number" name='min_stock_level' onChange={handleChange}/>
-                            </div>
-                        </div>   
-                            
+                        <button onClick={handleCancel} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-slate-50">
+                            <ArrowLeft className="h-4 w-4" />
+                            Back
+                        </button>
                     </div>
-                    <div className='space-y-5'>
-                         <div>
-                            <label className="md:text-lg font-medium block text-[#404758] mb-2">Product Description <span className='text-red-500 text-xs'>*</span> </label>
-                            <textarea
-                                className="w-full h-32 text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="" id="description" value={formdata.description} type="text" name='description' onChange={handleChange}/>                                
+                </div>
+            </section>
+
+            {errorBox}
+
+            {content}
+
+            {loadstate === "success" && (
+            <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_1.2fr]">
+
+                {/* Left Column */}
+                <div className="flex flex-col gap-6">
+
+                    {/* Photo Card */}
+                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 mb-4">Product Photo</p>
+                        <div className="flex flex-col items-center gap-4 sm:flex-row">
+                            <div className="relative h-[180px] w-[180px] flex-shrink-0 overflow-hidden rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50">
+                                {photoSrc ? (
+                                    <img alt="Product" src={photoSrc} className="h-full w-full object-cover" />
+                                ) : (
+                                    <div className="flex h-full w-full flex-col items-center justify-center gap-2">
+                                        <ImagePlus className="h-10 w-10 text-slate-300" />
+                                        <p className="text-xs text-slate-400">No photo</p>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <input type="file" id="uploadBtn" multiple accept="image/*" className="hidden" onChange={handleUploadChange} />
+                                <label htmlFor="uploadBtn" className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-slate-100">
+                                    <Upload className="h-4 w-4" />
+                                    Upload Photo
+                                </label>
+                                <p className="text-xs text-slate-400">Min 120 x 120px. JPG, PNG.</p>
+                            </div>
                         </div>
-                        <div className='grid grid-cols-2 gap-4'>
+                    </div>
+
+                    {/* Basic Info Card */}
+                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 mb-5">Basic Information</p>
+                        <div className="flex flex-col gap-5">
                             <div>
-                                <label className="md:text-lg font-medium block text-[#404758] mb-2">SRP <span className='text-red-500 text-xs'>*</span> </label>
-                                <input
-                                    className="w-full text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 mb-5 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="" id="price" value={formdata.price} type="number" name='price' onChange={handleChange}/>
+                                <label htmlFor="code" className={labelClass}>Product Code <span className="text-red-400">*</span></label>
+                                <input className={inputClass + " mt-2"} placeholder="e.g. PROD-001" id="code" value={formdata.code} type="text" name="code" onChange={handleChange} />
                             </div>
-                             <div>
-                                <label className="md:text-lg font-medium block text-[#404758] mb-2">Member&apos;s Price <span className='text-red-500 text-xs'>*</span> </label>
-                                <input
-                                    className="w-full text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 mb-5 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="" id="member_price" value={formdata.member_price} type="number" name='member_price' onChange={handleChange}/>
-                            </div>
-                        </div>   
-                        <div className='grid grid-cols-2 gap-4'>
                             <div>
-                                <label className="md:text-lg font-medium block text-[#404758] mb-2">Hub&apos;s Price <span className='text-red-500 text-xs'>*</span> </label>
-                                <input
-                                    className="w-full text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 mb-5 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="" id="hub_price" value={formdata.hub_price} type="number" name='hub_price' onChange={handleChange}/>
+                                <label className={labelClass}>Category <span className="text-red-400">*</span></label>
+                                <div className="mt-2">
+                                    <Select isClearable={true} menuPortalTarget={typeof document !== "undefined" ? document.body : null} styles={selectStyles} options={categories} value={formdata.category_id} onChange={handleChangeCat} />
+                                </div>
                             </div>
-                             <div>
-                                <label className="md:text-lg font-medium block text-[#404758] mb-2">Hub Profit<span className='text-red-500 text-xs'>*</span> </label>
-                                <input
-                                    className="w-full text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 mb-5 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="" id="hub_profit" value={formdata.hub_profit} type="number" name='hub_profit' onChange={handleChange}/>
-                            </div>
-                        </div>   
-                        <div className='grid grid-cols-2 gap-4'>
                             <div>
-                                <label className="md:text-lg font-medium block text-[#404758] mb-2">H2C Wallet <span className='text-red-500 text-xs'>*</span> </label>
-                                <input
-                                    className="w-full text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 mb-5 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="" id="h2c_wallet" value={formdata.h2c_wallet} type="number" name='h2c_wallet' onChange={handleChange}/>
+                                <label htmlFor="productname" className={labelClass}>Product Name <span className="text-red-400">*</span></label>
+                                <input className={inputClass + " mt-2"} placeholder="Enter product name" id="productname" value={formdata.productname} type="text" name="productname" onChange={handleChange} />
                             </div>
-                             <div>
-                                <label className="md:text-lg font-medium block text-[#404758] mb-2">Stairstep Allocation<span className='text-red-500 text-xs'>*</span> </label>
-                                <input
-                                    className="w-full text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 mb-5 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="" id="stairstep_alloc" value={formdata.stairstep_alloc} type="number" name='stairstep_alloc' onChange={handleChange}/>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="uom" className={labelClass}>UOM <span className="text-red-400">*</span></label>
+                                    <input className={inputClass + " mt-2"} placeholder="e.g. pcs, box" id="uom" value={formdata.uom} type="text" name="uom" onChange={handleChange} />
+                                </div>
+                                <div>
+                                    <label htmlFor="weight" className={labelClass}>Weight (kg)</label>
+                                    <input className={inputClass + " mt-2"} placeholder="0" id="weight" value={formdata.weight} type="number" name="weight" onChange={handleChange} />
+                                </div>
                             </div>
-                        </div>   
-                         <div className='grid grid-cols-2 gap-4'>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="unit_cost" className={labelClass}>Unit Cost</label>
+                                    <input className={inputClass + " mt-2"} placeholder="0" id="unit_cost" value={formdata.unit_cost} type="number" name="unit_cost" onChange={handleChange} />
+                                </div>
+                                <div>
+                                    <label htmlFor="min_stock_level" className={labelClass}>Min Stock Level</label>
+                                    <input className={inputClass + " mt-2"} placeholder="0" id="min_stock_level" value={formdata.min_stock_level} type="number" name="min_stock_level" onChange={handleChange} />
+                                </div>
+                            </div>
+                             <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="pv" className={labelClass}>PV</label>
+                                    <input className={inputClass + " mt-2"} placeholder="0" id="pv" value={formdata.pv} type="number" name="pv" onChange={handleChange} />
+                                </div>
+                                <div>                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right Column */}
+                <div className="flex flex-col gap-6">
+
+                    {/* Description Card */}
+                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 mb-5">Description</p>
+                        <div>
+                            <label htmlFor="description" className={labelClass}>Product Description <span className="text-red-400">*</span></label>
+                            <textarea
+                                className={inputClass + " mt-2 h-32 resize-none"}
+                                placeholder="Write a brief description of the product..."
+                                id="description" value={formdata.description} name="description" onChange={handleChange}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Pricing Card */}
+                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 mb-5">Pricing</p>
+                        <div className="flex flex-col gap-5">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="price" className={labelClass}>SRP <span className="text-red-400">*</span></label>
+                                    <input className={inputClass + " mt-2"} placeholder="0.00" id="price" value={formdata.price} type="number" name="price" onChange={handleChange} />
+                                </div>
+                                <div>
+                                    <label htmlFor="member_price" className={labelClass}>Member&apos;s Price <span className="text-red-400">*</span></label>
+                                    <input className={inputClass + " mt-2"} placeholder="0.00" id="member_price" value={formdata.member_price} type="number" name="member_price" onChange={handleChange} />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="hub_price" className={labelClass}>Hub&apos;s Price</label>
+                                    <input className={inputClass + " mt-2"} placeholder="0.00" id="hub_price" value={formdata.hub_price} type="number" name="hub_price" onChange={handleChange} />
+                                </div>
+                                <div>
+                                    <label htmlFor="hub_profit" className={labelClass}>Hub Profit</label>
+                                    <input className={inputClass + " mt-2"} placeholder="0.00" id="hub_profit" value={formdata.hub_profit} type="number" name="hub_profit" onChange={handleChange} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Allocations Card */}
+                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 mb-5">Allocations</p>
+                        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                             <div>
-                                <label className="md:text-lg font-medium block text-[#404758] mb-2">Unilevel Allocation <span className='text-red-500 text-xs'>*</span> </label>
-                                <input
-                                    className="w-full text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 mb-5 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="" id="unilevel_alloc" value={formdata.unilevel_alloc} type="number" name='unilevel_alloc' onChange={handleChange}/>
+                                <label htmlFor="h2c_wallet" className={labelClass}>H2C Wallet</label>
+                                <input className={inputClass + " mt-2"} placeholder="0.00" id="h2c_wallet" value={formdata.h2c_wallet} type="number" name="h2c_wallet" onChange={handleChange} />
                             </div>
-                             <div>
-                               
+                            <div>
+                                <label htmlFor="stairstep_alloc" className={labelClass}>Stairstep</label>
+                                <input className={inputClass + " mt-2"} placeholder="0.00" id="stairstep_alloc" value={formdata.stairstep_alloc} type="number" name="stairstep_alloc" onChange={handleChange} />
                             </div>
-                        </div>   
-                        <div className='space-y-5'>
-                            <div className="-mt-2 ml-2">
-                                <Checkbox id="isActive" checked={formdata.isActive} onChange={handleChangeActive}/>
-                                <Label htmlFor="isActive" className="ml-3 text-base font-medium -mt-1">
-                                    Is Active
-                                </Label>
+                            <div>
+                                <label htmlFor="unilevel_alloc" className={labelClass}>Unilevel</label>
+                                <input className={inputClass + " mt-2"} placeholder="0.00" id="unilevel_alloc" value={formdata.unilevel_alloc} type="number" name="unilevel_alloc" onChange={handleChange} />
                             </div>
-                            <div className="-mt-2 ml-2">
-                                <Checkbox id="isNonInventory" checked={formdata.isNonInventory} onChange={handleChangeNonInventory}/>
-                                <Label htmlFor="isNonInventory" className="ml-3 text-base font-medium -mt-1">
-                                    Is Non&#8209;Inventory
-                                </Label>
+                        </div>
+                    </div>
+
+                    {/* Settings Card */}
+                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 mb-5">Settings</p>
+                        <div className="flex flex-col gap-4">
+                            <div className="flex items-start gap-3">
+                                <div className="mt-0.5">
+                                    <Checkbox id="isActive" checked={formdata.isActive} onChange={handleChangeActive}/>
+                                </div>
+                                <div>
+                                    <Label htmlFor="isActive" className="text-sm font-semibold text-slate-700">Active</Label>
+                                    <p className="text-xs text-slate-400">Product is visible and available for purchase.</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <div className="mt-0.5">
+                                    <Checkbox id="isNonInventory" checked={formdata.isNonInventory} onChange={handleChangeNonInventory}/>
+                                </div>
+                                <div>
+                                    <Label htmlFor="isNonInventory" className="text-sm font-semibold text-slate-700">Non&#8209;Inventory</Label>
+                                    <p className="text-xs text-slate-400">This product does not track stock levels.</p>
+                                </div>
                             </div>
                             {packageTypeBox}
                             {memberPack}
-                            <div className="-mt-2 ml-2">
-                                <Checkbox id="isHidden" checked={formdata.isHidden} onChange={handleChangeHidden}/>
-                                <Label htmlFor="isHidden" className="ml-3 text-base font-medium -mt-1">
-                                    Hide in Online Store
-                                </Label>
+                            <div className="flex items-start gap-3">
+                                <div className="mt-0.5">
+                                    <Checkbox id="isHidden" checked={formdata.isHidden} onChange={handleChangeHidden}/>
+                                </div>
+                                <div>
+                                    <Label htmlFor="isHidden" className="text-sm font-semibold text-slate-700">Hide in Store</Label>
+                                    <p className="text-xs text-slate-400">Product won't appear in the online store.</p>
+                                </div>
                             </div>
-                        </div>          
+                        </div>
                     </div>
                 </div>
-                 <div className="border-b border-dotted border-gray-300 py-2">                        
-                </div>
-                <div className='py-4 flex justify-between'>
-                    <CancelBtn type="button"  onClick={handleCancel}>Back</CancelBtn>     
-                    <PrimaryBtn type="button"  onClick={handleSave}  isLoading={saveState==="saving"}>Save Changes</PrimaryBtn>                             
-                </div>
-            </div>                  
+            </div>
+            )}
+
+            {/* Footer Actions */}
+            {loadstate === "success" && (
+            <div className="mt-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm">
+                <CancelBtn type="button" onClick={handleCancel}>Back</CancelBtn>
+                <PrimaryBtn type="button" onClick={handleSave} isLoading={saveState==="saving"}>Save Changes</PrimaryBtn>
+            </div>
+            )}
+
             <Toaster position="top-center" reverseOrder={false}/>
         </div>
     )

@@ -296,3 +296,10 @@
     -webkit-appearance: none;
   }
 }
+
+/* Ensure Flowbite datepicker dropdown stays on top of cards/headers. */
+.datepicker-dropdown,
+.datepicker {
+  z-index: 9999 !important;
+}
+

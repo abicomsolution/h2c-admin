@@ -193,9 +193,6 @@ const customStyles = {
           
 
         },
-        pageButtonsStyle: {
-            fill: "#fff"
-        }
     },
     noData: {
         style: {

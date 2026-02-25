@@ -52,7 +52,9 @@ export const POST = async (request) => {
             unit_cost: body.unit_cost || 0,
             min_stock_level: body.min_stock_level || 0,
             isNonInventory: body.isNonInventory,
-            isHidden: body.isHidden	
+            isHidden: body.isHidden	,
+            packageType: body.packageType || 0,
+            pv: body.pv || 0
         }
 
         let newProduct = new Product(params)

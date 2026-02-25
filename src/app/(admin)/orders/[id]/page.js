@@ -1,7 +1,5 @@
 "use client"
-import DataTable from 'react-data-table-component';
-import React, { useEffect, useState} from 'react';
-import { Search } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -9,7 +7,7 @@ import { usePageTitle } from "@/context/PageTitleProvider";
 import callApi from '@/utils/api-caller';
 import PreLoader from '@/components/preloader';
 import moment from 'moment';
-import { TriangleAlert, ArrowLeft, Plus } from "lucide-react";
+import { TriangleAlert, ArrowLeft, Plus, ShoppingCart, User, CreditCard, Truck, ClipboardList, Settings } from "lucide-react";
 import PrimaryBtn from "@/components/primaryBtn";
 import CancelBtn from '@/components/cancelBtn';
 import toast, { Toaster } from 'react-hot-toast';
@@ -54,19 +52,33 @@ const initDtls = {
 	uom: ""
 }
 
-const controlStyle = {    
+const selectStyles = {    
     menuPortal: provided => ({ ...provided, zIndex: 9999 }),
-    menu: provided => ({ ...provided, zIndex: 9999 }),
+    menu: provided => ({ ...provided, zIndex: 9999, borderRadius: '12px', overflow: 'hidden' }),
     control: (baseStyles, state) => ({
         ...baseStyles,      
-        paddingLeft: "10px",
-        paddingRight: "10px",
-        paddingTop: "4px",
-        paddingBottom: "4px",
-        borderRadius: "20px"
+        padding: "2px 4px",
+        borderRadius: "12px",
+        borderColor: state.isFocused ? "#94a3b8" : "#e2e8f0",
+        backgroundColor: "#f8fafc",
+        fontSize: "14px",
+        boxShadow: state.isFocused ? "0 0 0 2px rgba(186,230,253,0.4)" : "none",
+        '&:hover': { borderColor: "#cbd5e1" },
     }),
-   
+    option: (provided, state) => ({
+        ...provided,
+        fontSize: "14px",
+        backgroundColor: state.isSelected ? "#0ea5e9" : state.isFocused ? "#f0f9ff" : "#fff",
+    }),
+    singleValue: (provided) => ({
+        ...provided,
+        fontSize: "14px",
+        color: "#334155",
+    }),
 }
+
+const inputClass = "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:bg-slate-100 disabled:text-slate-400"
+const labelClass = "mb-1.5 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-500"
 
 const isArrayEqual = (a, b) => JSON.stringify(a.sort()) === JSON.stringify(b.sort())
 
@@ -500,253 +512,298 @@ export default function OrderForm(props) {
     
     var errorBox = null
     if (errorMessage) {
-        errorBox = <div className="flex gap-2 bg-[#e12d2dbf] p-2 my-2">
-                    <TriangleAlert  className="h-6 w-6  text-white" strokeWidth={3} />
-                    <span className="text-base font-bold text-white">{errorMessage}</span>
+        errorBox = <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 p-3 my-3">
+                    <TriangleAlert className="h-5 w-5 text-red-500 shrink-0" strokeWidth={2.5} />
+                    <span className="text-sm font-semibold text-red-700">{errorMessage}</span>
                 </div>
-                   
     }
 
     var errorLineBox = null
     if (errLine){
-        errorLineBox = <div className="flex gap-2 bg-[#e12d2d47] p-3 my-4 rounded-lg px-6">
-                    <TriangleAlert  className="h-6 w-6 text-red-600" strokeWidth={3} />
-                    <span className="text-base font-bold text-red-600">{errLine}</span>
+        errorLineBox = <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 p-3 my-3">
+                    <TriangleAlert className="h-5 w-5 text-red-500 shrink-0" strokeWidth={2.5} />
+                    <span className="text-sm font-semibold text-red-700">{errLine}</span>
                 </div>
 	}
 
-    // console.log("formdata:", formdata)
-  
-    let boxActivated = <p>--</p>
-    let boxStockist= <p>--</p>
+    let boxActivated = <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-400">--</span>
+    let boxStockist = null
 
     let codebox = ""
 
     if (formdata.member_id){
         if (formdata.member_id.activated){
-            // if (formdata.member_id.is)
-            boxActivated =  <p className='bg-green-500 uppercase text-sm rounded-full px-4 font-bold text-white py-1'>Member</p>
+            boxActivated = <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">Member</span>
         }else{
-            boxActivated =  <p className='bg-gray-500 uppercase text-sm rounded-full px-4 font-bold text-white py-1'>Non-Member/Pre signup</p>
+            boxActivated = <span className="inline-flex items-center rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600">Non-Member</span>
         }
 
         if (formdata.member_id.isHub){
-            boxStockist =   <p className={`text-center ${formdata.member_id.hubtype == 2 ? 'bg-[#ff44ab]':formdata.member_id.hubtype == 1 ? 'bg-[#ff7044]' : formdata.member_id.hubtype == 0 ? 'bg-[#4469ff]': ""} uppercase text-sm rounded-full px-4 font-bold text-white py-1`}>{HUBTYPE[formdata.member_id.hubtype || 0]}</p>
+            const hubColors = { 0: 'bg-sky-100 text-sky-700', 1: 'bg-orange-100 text-orange-700', 2: 'bg-pink-100 text-pink-700' }
+            boxStockist = <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${hubColors[formdata.member_id.hubtype] || 'bg-sky-100 text-sky-700'}`}>{HUBTYPE[formdata.member_id.hubtype || 0]}</span>
 
-            codebox = <div>
-                        <Checkbox id="hascodes" name="hascodes" checked={formdata.hascodes} onChange={handlePC} disabled={formdata.status == 1}/>
-                        <Label htmlFor="hascodes" className="ml-3 text-base font-medium -mt-1">Generate product codes</Label>
-                    </div>
+            codebox = <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 cursor-pointer hover:bg-slate-50 transition">
+                        <Checkbox id="hascodes" name="hascodes" checked={formdata.hascodes} onChange={handlePC} disabled={formdata.status == 1} className="text-sky-600 focus:ring-sky-500"/>
+                        <div>
+                            <p className="text-sm font-medium text-slate-700">Generate product codes</p>
+                            <p className="text-xs text-slate-400">Auto-generate codes for hub products</p>
+                        </div>
+                    </label>
         }        
     }
     
     return (
-        <div className={`w-full px-6 pb-10`}>                    
-            <div className="bg-white rounded-xl p-6 px-12 ">
-                {errorBox}
-                <div className="flex justify-between items-center mb-6 pt-2">
-                    <div></div>
-                    <div>
-                        {formdata.status===1 && <p className='bg-green-400 p-2 px-4 rounded-4xl text-white'>Posted</p>}
+        <div className='mt-4 px-2 pb-10 flex justify-center'>
+            <div className="lg:container lg:max-w-7xl">
+                {/* Header */}
+                <section className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 via-white to-sky-50 p-6 shadow-sm">
+                    <div className="absolute -right-24 -top-16 h-48 w-48 rounded-full bg-sky-100/70 blur-3xl" />
+                    <div className="absolute -left-24 bottom-0 h-48 w-48 rounded-full bg-amber-100/70 blur-3xl" />
+                    <div className="relative z-10">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex items-center gap-4">
+                                <button onClick={handleCancel} className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm hover:bg-slate-50 transition">
+                                    <ArrowLeft className="h-5 w-5 text-slate-600" />
+                                </button>
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Order Management</p>
+                                    <h1 className="mt-1 text-2xl font-semibold text-slate-800">
+                                        {params?.id === 'add' ? 'New Order' : `Order #${formdata?.order_num ? pad(formdata.order_num, 6) : ''}`}
+                                    </h1>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                {formdata.status === 1 && (
+                                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-4 py-1.5 text-sm font-semibold text-emerald-700">
+                                        Posted
+                                    </span>
+                                )}
+                                {formdata.status === 0 && params.id !== 'add' && (
+                                    <span className="inline-flex items-center rounded-full bg-amber-100 px-4 py-1.5 text-sm font-semibold text-amber-700">
+                                        Open
+                                    </span>
+                                )}
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div className='mt-8 grid grid-cols-1 md:grid-cols-2 gap-12'>
-                    <div className='space-y-6'>
-                        <div className='grid grid-cols-2 gap-4'>
-                             <div>
-                                <label className="md:text-lg font-medium block text-[#404758] mb-2">Date <span className='text-red-500 text-xs'>*</span> </label>
-                                <input
-                                    className="w-full text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3  focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="" id="transdate" 
-                                    value={moment(formdata.transdate).format("YYYY-MM-DD")} 
-                                    type="date" 
-                                    name='transdate' 
-                                    onChange={handleChange}
-                                    disabled={formdata.status == 1}/>
+                </section>
+
+                {errorBox}
+
+                {loadstate !== "success" ? (
+                    <div className="mt-6"><PreLoader /></div>
+                ) : (
+                    <>
+                        {/* Row 1: Order Details (Order Info + Member + Shipping in one card) */}
+                        <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                            <div className="flex items-center gap-2 mb-5">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-50">
+                                    <ClipboardList className="h-4 w-4 text-sky-600" />
+                                </div>
+                                <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-700">Order Details</h2>
                             </div>
-                            <div>
-                                <label className="md:text-lg font-medium block text-[#404758] mb-2">Order # </label>
-                                <input
-                                    className="w-full text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="Order Number" 
-                                    id="order_num" 
-                                    value={formdata?.order_num ? pad(formdata.order_num, 6): "[AUTO]"} 
-                                    type="text" 
-                                    name='order_num' disabled/>
-                            </div>                           
-                        </div>   
-                        <div>
-                            <label className="md:text-lg font-medium block text-[#404758] mb-4">Payment Mode</label>
-                            <div className='flex gap-6'>
-                                <div>
-                                    <Checkbox id="cash_payment" name="cash_payment" checked={formdata.cash_payment} onChange={handleCheck} disabled={formdata.status == 1}/>
-                                    <Label htmlFor="cash_payment" className="ml-3 text-base font-medium -mt-1">Cash</Label>
-                                </div>                              
-                                <div>
-                                    <Checkbox id="cc_payment" name="cc_payment" checked={formdata.cc_payment} onChange={handleCheck} disabled={formdata.status == 1}/>
-                                    <Label htmlFor="cc_payment" className="ml-3 text-base font-medium -mt-1">Credit Card</Label>
+                            <div className="grid grid-cols-1 gap-x-6 gap-y-4 lg:grid-cols-4">
+                            
+                                <div className="lg:col-span-2">
+                                    <label className={labelClass}>Member <span className="text-red-400">*</span></label>
+                                    <Select menuPortalTarget={typeof document !== "undefined" ? document.body : null} styles={selectStyles} options={members} value={formdata.member_id} isDisabled={formdata.status == 1} onChange={handleChangeCat} />
                                 </div>
                                 <div>
-                                    <Checkbox id="bank_payment" name="bank_payment" checked={formdata.bank_payment} onChange={handleCheck} disabled={formdata.status == 1}/>
-                                    <Label htmlFor="bank_payment" className="ml-3 text-base font-medium -mt-1">Bank Deposit/Transfer</Label>
+                                    <label className={labelClass}>Date <span className="text-red-400">*</span></label>
+                                    <input className={inputClass} id="transdate" value={moment(formdata.transdate).format("YYYY-MM-DD")} type="date" name="transdate" onChange={handleChange} disabled={formdata.status == 1} />
                                 </div>
                                 <div>
-                                    <Checkbox id="ewallet_payment" name="ewallet_payment" checked={formdata.ewallet_payment} onChange={handleCheck} disabled={formdata.status == 1}/>
-                                    <Label htmlFor="ewallet_payment" className="ml-3 text-base font-medium -mt-1">E-Wallet</Label>
+                                    <label className={labelClass}>Order #</label>
+                                    <input className={inputClass} id="order_num" value={formdata?.order_num ? pad(formdata.order_num, 6) : "[AUTO]"} type="text" name="order_num" disabled />
+                                </div>
+                                <div>
+                                    <label className={labelClass}>Account Status</label>
+                                    <div className="mt-1 flex flex-wrap gap-1.5">{boxActivated}{boxStockist}</div>
+                                </div>
+                                <div>
+                                    <label className={labelClass}>Sponsor</label>
+                                    <p className="mt-1 text-sm text-slate-600 truncate">{formdata.member_id?.sponsorid?.fullname || "--"}</p>
+                                </div>
+                                <div className="lg:col-span-2">
+                                    <label className={labelClass}>Shipping Address</label>
+                                    <input className={inputClass} id="shipping_address" value={formdata.shipping_address} type="text" disabled />
+                                </div>
+                                <div className="lg:col-span-2">
+                                    <label className={labelClass}>Remarks</label>
+                                    <textarea className={`${inputClass} min-h-[48px] resize-none`} id="remarks" value={formdata.remarks} name="remarks" disabled={formdata.status == 1} onChange={handleChange} rows={1} />
                                 </div>
                             </div>
-                        </div>  
-                        <div>
-                            <label className="md:text-lg font-medium block text-[#404758] mb-2">Payment Reference <span className='text-red-500 text-xs'>*</span> </label>
-                            <input
-                                className="w-100 text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="" id="payment_ref_num" 
-                                value={formdata.payment_ref_num} 
-                                type="text" 
-                                name='payment_ref_num'
-                                onChange={handleChange}
-                                disabled={formdata.status == 1}/>
-                        </div>  
-                        <div>
-                            <label className="md:text-lg font-medium block text-[#404758] mb-2">Remarks </label>
-                            <textarea
-                                className="w-full h-16 text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="" 
-                                id="remarks" 
-                                value={formdata.remarks} 
-                                type="text" 
-                                name='remarks' 
-                                disabled={formdata.status == 1}
-                                onChange={handleChange}/>                                
                         </div>
 
-                        <div className='space-y-5'>
-                            <div>
-                                <Checkbox id="repeatorder" name="repeatorder" checked={formdata.repeatorder} onChange={handleRO} disabled={formdata.status == 1}/>
-                                <Label htmlFor="repeatorder" className="ml-3 text-base font-medium -mt-1">Repeat Order</Label>
+                        {/* Row 2: Payment + Options side by side */}
+                        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+                            {/* Payment Card */}
+                            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                                <div className="flex items-center gap-2 mb-5">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50">
+                                        <CreditCard className="h-4 w-4 text-emerald-600" />
+                                    </div>
+                                    <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-700">Payment</h2>
+                                </div>
+                                <div>
+                                    <label className={labelClass}>Payment Mode</label>
+                                    <div className="mt-2 grid grid-cols-2 gap-3">
+                                        {[
+                                            { id: "cash_payment", label: "Cash" },
+                                            { id: "cc_payment", label: "Credit Card" },
+                                            { id: "bank_payment", label: "Bank Transfer" },
+                                            { id: "ewallet_payment", label: "E-Wallet" },
+                                        ].map(pm => (
+                                            <label key={pm.id} className={`flex items-center gap-2.5 rounded-xl border p-3 cursor-pointer transition ${formdata[pm.id] ? 'border-sky-300 bg-sky-50' : 'border-slate-200 bg-white hover:bg-slate-50'}`}>
+                                                <Checkbox id={pm.id} name={pm.id} checked={formdata[pm.id]} onChange={handleCheck} disabled={formdata.status == 1} className="text-sky-600 focus:ring-sky-500" />
+                                                <span className="text-sm font-medium text-slate-700">{pm.label}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="mt-4">
+                                    <label className={labelClass}>Payment Reference</label>
+                                    <input
+                                        className={inputClass}
+                                        id="payment_ref_num"
+                                        value={formdata.payment_ref_num}
+                                        type="text"
+                                        name="payment_ref_num"
+                                        onChange={handleChange}
+                                        disabled={formdata.status == 1}
+                                        placeholder="Enter reference number"
+                                    />
+                                </div>
                             </div>
-                            {codebox}
-                            <div>
-                                <Checkbox id="hasactivationcodes" name="hasactivationcodes" checked={formdata.hasactivationcodes} onChange={handleCheck} disabled={formdata.status == 1}/>
-                                <Label htmlFor="hasactivationcodes" className="ml-3 text-base font-medium -mt-1">Generate activation codes (for packages)</Label>
+
+                            {/* Options Card */}
+                            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                                <div className="flex items-center gap-2 mb-5">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100">
+                                        <Settings className="h-4 w-4 text-slate-600" />
+                                    </div>
+                                    <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-700">Options</h2>
+                                </div>
+                                <div className="space-y-3">
+                                    <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 cursor-pointer hover:bg-slate-50 transition">
+                                        <Checkbox id="repeatorder" name="repeatorder" checked={formdata.repeatorder} onChange={handleRO} disabled={formdata.status == 1} className="text-sky-600 focus:ring-sky-500" />
+                                        <div>
+                                            <p className="text-sm font-medium text-slate-700">Repeat Order</p>
+                                            <p className="text-xs text-slate-400">Mark as a repeat purchase</p>
+                                        </div>
+                                    </label>
+                                    {codebox}
+                                    <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 cursor-pointer hover:bg-slate-50 transition">
+                                        <Checkbox id="hasactivationcodes" name="hasactivationcodes" checked={formdata.hasactivationcodes} onChange={handleCheck} disabled={formdata.status == 1} className="text-sky-600 focus:ring-sky-500" />
+                                        <div>
+                                            <p className="text-sm font-medium text-slate-700">Generate activation codes</p>
+                                            <p className="text-xs text-slate-400">For membership packages</p>
+                                        </div>
+                                    </label>
+                                </div>
                             </div>
-                        </div>   
-                    </div>
-                    <div className='space-y-6'>
-                        <div>
-                            <label className="md:text-lg font-medium block text-[#404758] mb-2">Choose Member <span className='text-red-500 text-xs'>*</span> </label>
-                            <Select  menuPortalTarget={typeof document !== "undefined" ? document.body : null} styles={controlStyle}
-                                     options={members} 
-                                     value={formdata.member_id}   
-                                     isDisabled={formdata.status == 1}
-                                     onChange={handleChangeCat} />                            
                         </div>
-                        <div>
-                            <label className="md:text-lg font-medium block text-[#404758] mb-2">Account Status </label>
-                            <div className='flex gap-4'>
-                               {boxActivated}
-                               {boxStockist}
+
+                        {/* Row 3: Order Items - Full Width */}
+                        <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex items-center gap-2">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50">
+                                        <ShoppingCart className="h-4 w-4 text-violet-600" />
+                                    </div>
+                                    <h2 className="text-sm font-bold uppercase tracking-[0.12em] text-slate-700">Order Items</h2>
+                                </div>
+                                {formdata.status != 1 && (
+                                    <button type="button" onClick={() => showAdd(true)} className="inline-flex items-center gap-1.5 rounded-lg bg-sky-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-sky-700 transition">
+                                        <Plus className="h-3.5 w-3.5" /> Add Item
+                                    </button>
+                                )}
                             </div>
-                         </div>
-                        <div>
-                            <label className="md:text-lg font-medium block text-[#404758] mb-2">Shipping Address </label>
-                            <textarea
-                                className="w-full h-16 text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="" id="shipping_address" value={formdata.shipping_address} type="text" disabled/>                                
+                            {errorLineBox}
+                            <div className="overflow-x-auto rounded-xl border border-slate-200">
+                                <Table striped>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableHeadCell className="w-[280px] text-xs uppercase tracking-wider text-slate-500 bg-slate-50">Product</TableHeadCell>
+                                            <TableHeadCell className="w-[120px] text-center text-xs uppercase tracking-wider text-slate-500 bg-slate-50">SRP</TableHeadCell>
+                                            <TableHeadCell className="w-[60px] text-center text-xs uppercase tracking-wider text-slate-500 bg-slate-50">UOM</TableHeadCell>
+                                            <TableHeadCell className="w-[120px] text-center text-xs uppercase tracking-wider text-slate-500 bg-slate-50">Disc. Price</TableHeadCell>
+                                            <TableHeadCell className="w-[80px] text-center text-xs uppercase tracking-wider text-slate-500 bg-slate-50">Qty</TableHeadCell>
+                                            <TableHeadCell className="w-[120px] text-center text-xs uppercase tracking-wider text-slate-500 bg-slate-50">Sub Total</TableHeadCell>
+                                            <TableHeadCell className="w-[80px] text-center text-xs uppercase tracking-wider text-slate-500 bg-slate-50">Action</TableHeadCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {details.map((item, index) => {
+                                            if (!item.onDelete) {
+                                                return (
+                                                    <EditForm key={index} data={item}
+                                                        index={index}
+                                                        details={details}
+                                                        formdata={formdata}
+                                                        products={products}
+                                                        formdetails={formdetails}
+                                                        addShown={addShown}
+                                                        editShown={editShown}
+                                                        errLine={errLine}
+                                                        onSelectProduct={handleSelectProduct}
+                                                        onChangeDetails={handleChangeDetails}
+                                                        onRemoveItem={handleRemoveItem}
+                                                        onEdit={handleEdit}
+                                                        onCancelEdit={handleCancelEdit}
+                                                        onUpdateItem={handleUpdateItem}
+                                                    />
+                                                )
+                                            }
+                                        })}
+                                        {addShown && (
+                                            <AddForm products={products}
+                                                formdetails={formdetails}
+                                                details={details}
+                                                errLine={errLine}
+                                                onAddItem={handleAddItem}
+                                                onCancelAdd={handleCancelAdd}
+                                                onSelectProduct={handleSelectProduct}
+                                                onChangeDetails={handleChangeDetails}
+                                            />
+                                        )}
+                                        <TableRow className="bg-slate-50">
+                                            <TableCell colSpan={5} className="text-right text-sm font-bold text-slate-700">Total Amount:</TableCell>
+                                            <TableCell className="text-center text-sm font-bold text-slate-800">{Number(formdata.total_amount.toFixed(2)).toLocaleString('en', { minimumFractionDigits: 2 })}</TableCell>
+                                            <TableCell></TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
+                            </div>
                         </div>
-                        <div>
-                            <label className="md:text-lg font-medium block text-[#404758] mb-2">Sponsor</label>
-                             <input
-                                className="w-100 text-sm placeholder-gray-500 border border-[#dcdcdc] rounded-3xl px-6 py-3 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-500 focus:ring-blue-500 focus:border-transparent"
-                                placeholder=""   value={formdata.member_id?.sponsorid?.fullname || "--"} type="text"  disabled/>                            
+
+                        {/* Row 4: Action Buttons - Back left, Save/Post right */}
+                        <div className="mt-6 flex items-center justify-between">
+                            <CancelBtn type="button" onClick={handleCancel}>Back to Orders</CancelBtn>
+                            <div className="flex items-center gap-3">
+                                {params.id !== 'add' && !hasChanges && formdata.status == 0 && (
+                                    <button type="button" onClick={handlePost} className="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-2.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 transition">
+                                        Post Order
+                                    </button>
+                                )}
+                                {formdata.status != 1 && (
+                                    <PrimaryBtn type="button" onClick={handleSave} isLoading={saveState === "saving"}>
+                                        {params?.id === 'add' ? 'Save Order' : 'Save Changes'}
+                                    </PrimaryBtn>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div className='mt-8'>
-                    <div className='flex justify-between'>
-                        <p className='font-bold text-lg'>Products</p>
-                        {formdata.status != 1 &&  <PrimaryBtn type="button" onClick={()=>showAdd(true)}> <Plus className='h-6 w-6'/>Add Product</PrimaryBtn> }
-                    </div>  
-                    
-                    <div className="mt-2 overflow-x-auto">                      
-                        {errorLineBox}                       
-                        <Table striped>
-                            <TableHead>
-                                <TableRow>
-                                    <TableHeadCell className='w-[300px]'>Product</TableHeadCell>
-                                    <TableHeadCell className='w-[150px] text-center'>SRP</TableHeadCell>
-                                    <TableHeadCell className='w-[60px] text-center'>UOM</TableHeadCell>
-                                    <TableHeadCell className='w-[150px] text-center'>Discounted Price</TableHeadCell>
-                                    <TableHeadCell className='w-[100px] text-center'>Quantity</TableHeadCell>
-                                    <TableHeadCell className='w-[150px] text-center'>Sub Total</TableHeadCell>
-                                    <TableHeadCell className='w-[100px] text-center'>Action</TableHeadCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {
-                                    details.map((item, index) => {
-                                        if (!item.onDelete) {
-                                            return (
-                                                <EditForm key={index} data={item}
-                                                    index={index}
-                                                    details={details}
-                                                    formdata={formdata}
-                                                    products={products}
-                                                    formdetails={formdetails}
-                                                    addShown={addShown}
-                                                    editShown={editShown}
-                                                    errLine={errLine}
-                                                    onSelectProduct={handleSelectProduct}
-                                                    onChangeDetails={handleChangeDetails}
-                                                    onRemoveItem={handleRemoveItem}
-                                                    onEdit={handleEdit}
-                                                    onCancelEdit={handleCancelEdit}
-                                                    onUpdateItem={handleUpdateItem}
-                                                />
-                                            )
-                                        }
-                                    })
-                                }
-                               {
-                                addShown &&
-                                    <AddForm products={products} 
-                                            formdetails={formdetails}
-                                            details={details}      
-                                            errLine={errLine}       
-                                            onAddItem={handleAddItem}        
-                                            onCancelAdd={handleCancelAdd}                        
-                                            onSelectProduct={handleSelectProduct} 
-                                            onChangeDetails={handleChangeDetails}/>
-                               }
-                              <TableRow>
-                                <TableCell colSpan={5} className="text-right font-bold">Total Amount:</TableCell>
-                                <TableCell className="text-center font-bold">{Number(formdata.total_amount.toFixed(2)).toLocaleString('en', {minimumFractionDigits: 2})}</TableCell>
-                                <TableCell></TableCell>
-                              </TableRow>
-                            </TableBody>
-                        </Table>
-                    </div>
-                </div>
-                 <div className="border-b border-dotted border-gray-300 py-2">                        
-                </div>
-                <div className='py-4 flex justify-between'>
-                    <CancelBtn type="button"  onClick={handleCancel}>Back</CancelBtn>     
-                    <div className='flex gap-4'>
-                        {
-                            params.id!=='add' && !hasChanges && formdata.status==0 &&
-                            <PrimaryBtn type="button" onClick={handlePost}>Post</PrimaryBtn>      
-                        }
-                        { formdata.status != 1 && <PrimaryBtn type="button"  onClick={handleSave}  isLoading={saveState==="saving"}>Save Changes</PrimaryBtn>}
-                    </div>
-                </div>
-            </div>                  
-            <ConfirmPost 
-                showPostConfirm={showPostConfirm} 
-                setShowPostConfirm={setShowPostConfirm} 
-                orderData={formdata}
-                onYes={handlePostConfirm}
+                    </>
+                )}
+
+                <ConfirmPost
+                    showPostConfirm={showPostConfirm}
+                    setShowPostConfirm={setShowPostConfirm}
+                    orderData={formdata}
+                    onYes={handlePostConfirm}
                 />
-            <Toaster position="top-center" reverseOrder={false}/>
+                <Toaster position="top-center" reverseOrder={false} />
+            </div>
         </div>
     )
 }

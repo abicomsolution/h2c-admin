@@ -1,3 +1,4 @@
+import Member from "@/models/member";
 import Orders from "@/models/order_header";
 import { NextResponse } from "next/server";
 import connect from "@/utils/db";

@@ -6,6 +6,7 @@ import { TriangleAlert } from "lucide-react";
 import Process from '@/components/process';
 import {  CircleCheck} from "lucide-react"
 import callApi from '@/utils/api-caller';
+import { CODETYPE } from '@/utils/constants';
 
 function Generate(props) {
 
@@ -93,61 +94,19 @@ function Generate(props) {
                             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                                 <p className="text-sm font-semibold text-slate-700">Code type</p>
                                 <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                                    <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700 transition hover:border-slate-300">
-                                        <input
-                                            type="radio"
-                                            name="codeType"
-                                            value="0"
-                                            checked={codeType === "0"}
-                                            onChange={(event) => setcodeType(event.target.value)}
-                                            className="h-4 w-4 border-slate-300 text-slate-700"
-                                        />
-                                        <span className="font-semibold">BR</span>
-                                    </label>
-                                    <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700 transition hover:border-slate-300">
-                                        <input
-                                            type="radio"
-                                            name="codeType"
-                                            value="1"
-                                            checked={codeType === "1"}
-                                            onChange={(event) => setcodeType(event.target.value)}
-                                            className="h-4 w-4 border-slate-300 text-slate-700"
-                                        />
-                                        <span className="font-semibold">Jumpstart</span>
-                                    </label>
-                                    <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700 transition hover:border-slate-300">
-                                        <input
-                                            type="radio"
-                                            name="codeType"
-                                            value="2"
-                                            checked={codeType === "2"}
-                                            onChange={(event) => setcodeType(event.target.value)}
-                                            className="h-4 w-4 border-slate-300 text-slate-700"
-                                        />
-                                        <span className="font-semibold">Basic</span>
-                                    </label>
-                                    <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700 transition hover:border-slate-300">
-                                        <input
-                                            type="radio"
-                                            name="codeType"
-                                            value="3"
-                                            checked={codeType === "3"}
-                                            onChange={(event) => setcodeType(event.target.value)}
-                                            className="h-4 w-4 border-slate-300 text-slate-700"
-                                        />
-                                        <span className="font-semibold">Pro</span>
-                                    </label>
-                                    <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700 transition hover:border-slate-300">
-                                        <input
-                                            type="radio"
-                                            name="codeType"
-                                            value="4"
-                                            checked={codeType === "4"}
-                                            onChange={(event) => setcodeType(event.target.value)}
-                                            className="h-4 w-4 border-slate-300 text-slate-700"
-                                        />
-                                        <span className="font-semibold">Elite</span>
-                                    </label>
+                                    {CODETYPE.map((item) => (
+                                        <label key={item.value} className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700 transition hover:border-slate-300">
+                                            <input
+                                                type="radio"
+                                                name="codeType"
+                                                value={String(item.value)}
+                                                checked={codeType === String(item.value)}
+                                                onChange={(event) => setcodeType(event.target.value)}
+                                                className="h-4 w-4 border-slate-300 text-slate-700"
+                                            />
+                                            <span className="font-semibold">{item.label}</span>
+                                        </label>
+                                    ))}
                                 </div>
                             </div>
                         </div>

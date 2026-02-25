@@ -1,6 +1,6 @@
 "use client"
-import React, { useEffect, useState} from 'react';
-import { Search, MoreVertical, Edit, Crown, CheckCircle, Mail, Phone, Calendar, Users } from 'lucide-react';
+import DataTable from 'react-data-table-component';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import callApi from '@/utils/api-caller';
@@ -12,152 +12,13 @@ import ConfirmHub from '../members/confirmHub';
 import toast, { Toaster } from 'react-hot-toast';
 import { HUBTYPE } from '@/utils/constants';
 import ConfirmUpgrade from './confirmUpgrade';
+import { EllipsisVertical, Users, Crown, Package } from 'lucide-react';
 
-// Member Card Component
-function MemberCard({ member, onEditProfile, onPromoteHub, onUpgradePaid, getAvatarColor, getInitials }) {
-    const [open, setOpen] = useState(false);
-    const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
-    const buttonRef = React.useRef(null);
-    const menuRef = React.useRef(null);
-
-    const handleToggle = () => {
-        if (!open && buttonRef.current) {
-            const rect = buttonRef.current.getBoundingClientRect();
-            setMenuPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX });
-        }
-        setOpen((prev) => !prev);
-    };
-
-    useEffect(() => {
-        if (!open) return;
-        function handleClick(event) {
-            if (
-                buttonRef.current &&
-                !buttonRef.current.contains(event.target) &&
-                menuRef.current &&
-                !menuRef.current.contains(event.target)
-            ) {
-                setOpen(false);
-            }
-        }
-        document.addEventListener('mousedown', handleClick);
-        return () => document.removeEventListener('mousedown', handleClick);
-    }, [open]);
-
-    const menuItems = [
-        { label: 'Edit Profile', icon: Edit, color: 'text-blue-600', action: () => { onEditProfile(member); setOpen(false); } },
-        { label: 'Promote to Hub', icon: Crown, color: 'text-amber-600', action: () => { onPromoteHub(member); setOpen(false); } },
-        ...(member.isCd && !member.cdPaid ? [{ label: 'Upgrade to Paid', icon: CheckCircle, color: 'text-green-600', action: () => { onUpgradePaid(member); setOpen(false); } }] : []),
-    ];
-
-    const dropdownMenu = (
-        <div
-            ref={menuRef}
-            className="z-[9999] absolute mt-1 w-56 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden"
-            style={{ top: menuPosition.top, left: menuPosition.left, position: 'absolute' }}
-        >
-            {menuItems.map((item, idx) => (
-                <button 
-                    key={idx}
-                    className={`block w-full text-left ${item.color} font-medium px-4 py-3 hover:bg-gray-50 transition flex items-center gap-3 border-b border-gray-100 last:border-b-0`}
-                    onClick={item.action}
-                >
-                    <item.icon size={18} />
-                    {item.label}
-                </button>
-            ))}
-        </div>
-    );
-
-    return (
-        <div className="bg-white border border-gray-200 rounded-xl hover:shadow-md transition-shadow duration-300">
-            <div className="p-5 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
-                {/* Member Info */}
-                <div className="flex gap-4 items-start flex-1">
-                    {/* Avatar */}
-                    <div className={`${getAvatarColor(member.username)} w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0`}>
-                        {getInitials(member.fullname)}
-                    </div>
-
-                    {/* Details */}
-                    <div className="flex-1 min-w-0">
-                        <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
-                            <h3 className="font-bold text-lg text-gray-900">{member.fullname}</h3>
-                            {member.isHub && (
-                                <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-xs font-semibold">
-                                    {HUBTYPE[member.hubtype] || 'Hub'}
-                                </span>
-                            )}
-                            {member.isCd && (
-                                <span className={`${member.cdPaid ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'} px-3 py-1 rounded-full text-xs font-semibold`}>
-                                    {member.cdPaid ? 'CD (Paid)' : 'CD (Unpaid)'}
-                                </span>
-                            )}
-                        </div>
-
-                        <p className="text-sm text-gray-600 mt-1">@{member.username}</p>
-
-                        {/* Contact Info */}
-                        <div className="flex flex-wrap gap-4 mt-3 text-sm text-gray-600">
-                            {member.emailadd && (
-                                <div className="flex items-center gap-2">
-                                    <Mail size={16} className="text-gray-400" />
-                                    <span className="truncate">{member.emailadd}</span>
-                                </div>
-                            )}
-                            {member.mobile1 && (
-                                <div className="flex items-center gap-2">
-                                    <Phone size={16} className="text-gray-400" />
-                                    <span>{member.mobile1}</span>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Dates & Sponsor */}
-                        <div className="flex flex-wrap gap-6 mt-3 text-xs text-gray-600">
-                            <div className="flex items-center gap-2">
-                                <Calendar size={14} className="text-gray-400" />
-                                <span>Joined: {moment(member.date_signup).format("MMM DD, YYYY")}</span>
-                            </div>
-                            {member.date_time_activated && (
-                                <div className="flex items-center gap-2">
-                                    <CheckCircle size={14} className="text-gray-400" />
-                                    <span>Active: {moment(member.date_time_activated).format("MMM DD, YYYY")}</span>
-                                </div>
-                            )}
-                            {member.sponsorid && (
-                                <div className="flex items-center gap-2">
-                                    <Users size={14} className="text-gray-400" />
-                                    <span>Sponsor: {member.sponsorid.username}</span>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Actions */}
-                <div className="self-end md:self-center">
-                    <div className="relative inline-block">
-                        <button
-                            ref={buttonRef}
-                            className="hover:bg-gray-100 p-2 rounded-lg transition"
-                            onClick={handleToggle}
-                            type="button"
-                        >
-                            <MoreVertical size={20} className="text-gray-600" />
-                        </button>
-                        {open && typeof window !== 'undefined' && createPortal(dropdownMenu, document.body)}
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
 
 export default function Members(props) {
 
     const session = useSession()
-    const [initialized, setinitialized] = useState(false) 
+    const [initialized, setinitialized] = useState(false)
 
     const router = useRouter();
     const [members, setMembers] = useState([]);
@@ -166,188 +27,307 @@ export default function Members(props) {
     const [showPromoteHub, setshowPromoteHub] = useState(false)
     const [selectedMember, setselectedMember] = useState(null)
     const [showConfirmUpgrade, setShowConfirmUpgrade] = useState(false)
-    
+
     useEffect(() => {
-    
         if (session.status === "unauthenticated") {
             router.replace("/login");
-        }else if (session.status=="authenticated"){                 
-            setinitialized(true)                
+        } else if (session.status == "authenticated") {
+            setinitialized(true)
         }
-    
     }, [session])
 
-
     useEffect(() => {
-        
-        if (initialized){        
-            init()   
+        if (initialized) {
+            init()
         }
-        
     }, [initialized])
 
-
-    const init = async ()=>{
-        setloadstate("loading")     
-        try{                 
-            const ret =  await callApi("/member") 
-            if (ret.status==200){                
+    const init = async () => {
+        setloadstate("loading")
+        try {
+            const ret = await callApi("/member")
+            if (ret.status == 200) {
                 setMembers(ret.data)
                 setloadstate("success")
-            }else{              
+            } else {
                 setloadstate("")
             }
-
-        }catch(err){
+        } catch (err) {
             console.log(err)
             setloadstate("")
         }
-        
     }
 
-
-    const searchNow = async (searchTerm)=>{
-        setloadstate("loading")     
-        try{                 
-            const ret =  await callApi("/member/search", "POST", {search: searchTerm}) 
-            if (ret.status==200){                
+    const searchNow = async (searchTerm) => {
+        setloadstate("loading")
+        try {
+            const ret = await callApi("/member/search", "POST", { search: searchTerm })
+            if (ret.status == 200) {
                 setMembers(ret.data)
                 setloadstate("success")
-            }else{              
+            } else {
                 setloadstate("")
             }
-
-        }catch(err){
+        } catch (err) {
             console.log(err)
             setloadstate("")
         }
-        
     }
 
-    const handleChange = (e)=>{
+    const handleChange = (e) => {
         setsearch(e.target.value)
     }
 
-    
-    const handleConfirmHub = ()=>{
+    const handleConfirmHub = () => {
         setshowPromoteHub(false)
         toast.success('Member successfully promoted to Hub!')
         setTimeout(() => {
-            window.location.reload();    
+            window.location.reload();
         }, 2000);
-        
     }
 
-    const handleConfirmUpgrade = ()=>{
+    const handleConfirmUpgrade = () => {
         setShowConfirmUpgrade(false)
         toast.success('Member successfully upgraded to Paid!')
         searchNow(search)
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
-            // Send Axios request here
-            if (search.length===0) {
+            if (search.length === 0) {
                 init()
-            }else{
-            searchNow(search)            
-            }                
+            } else {
+                searchNow(search)
+            }
         }, 500)
-
         return () => clearTimeout(delayDebounceFn)
-
     }, [search])
-
-
-    let content = <PreLoader />;
-
-    const getInitials = (fullname) => {
-        return fullname
-            ?.split(' ')
-            .map(n => n[0])
-            .join('')
-            .toUpperCase()
-            .slice(0, 2) || 'U';
-    };
-
-    const getAvatarColor = (username) => {
-        const colors = ['bg-blue-500', 'bg-purple-500', 'bg-pink-500', 'bg-green-500', 'bg-orange-500', 'bg-red-500', 'bg-cyan-500'];
-        const index = username.charCodeAt(0) % colors.length;
-        return colors[index];
-    };
 
     const handleEditProfile = (member) => {
         router.push("/profile?id=" + member._id);
     };
 
-    if (loadstate === "success") {
-        content = (
-            <div className="space-y-4">
-                {members.length === 0 ? (
-                    <NoRecord />
-                ) : (
-                    members.map((member, idx) => (
-                        <MemberCard
-                            key={idx}
-                            member={member}
-                            onEditProfile={handleEditProfile}
-                            onPromoteHub={(m) => {
-                                setselectedMember(m);
-                                setshowPromoteHub(true);
-                            }}
-                            onUpgradePaid={(m) => {
-                                setselectedMember(m);
-                                setShowConfirmUpgrade(true);
-                            }}
-                            getAvatarColor={getAvatarColor}
-                            getInitials={getInitials}
-                        />
-                    ))
+    const stats = useMemo(() => {
+        const total = members.length
+        const hubs = members.filter(m => m.isHub).length
+        const cd = members.filter(m => m.isCd).length
+        return { total, hubs, cd }
+    }, [members])
+
+    const renderActions = (row) => {
+        const [open, setOpen] = React.useState(false);
+        const [menuPosition, setMenuPosition] = React.useState({ top: 0, left: 0 });
+        const buttonRef = React.useRef(null);
+        const menuRef = React.useRef(null);
+
+        const handleToggle = () => {
+            if (!open && buttonRef.current) {
+                const rect = buttonRef.current.getBoundingClientRect();
+                setMenuPosition({ top: rect.bottom + window.scrollY, left: rect.left + window.scrollX - 100 });
+            }
+            setOpen((prev) => !prev);
+        };
+
+        React.useEffect(() => {
+            if (!open) return;
+            function handleClick(event) {
+                if (
+                    buttonRef.current && !buttonRef.current.contains(event.target) &&
+                    menuRef.current && !menuRef.current.contains(event.target)
+                ) {
+                    setOpen(false);
+                }
+            }
+            document.addEventListener('mousedown', handleClick);
+            return () => document.removeEventListener('mousedown', handleClick);
+        }, [open]);
+
+        const dropdownMenu = (
+            <div
+                ref={menuRef}
+                className="z-[9999] absolute mt-1 w-44 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden"
+                style={{ top: menuPosition.top, left: menuPosition.left, position: 'absolute' }}
+            >
+                <button className="block w-full text-left text-sm font-medium text-slate-700 px-4 py-2.5 hover:bg-slate-50 transition" onClick={() => { handleEditProfile(row); setOpen(false); }}>Edit Profile</button>
+                <button className="block w-full text-left text-sm font-medium text-amber-600 px-4 py-2.5 hover:bg-amber-50 transition" onClick={() => { setselectedMember(row); setshowPromoteHub(true); setOpen(false); }}>Promote to Hub</button>
+                {row.isCd && !row.cdPaid && (
+                    <button className="block w-full text-left text-sm font-medium text-emerald-600 px-4 py-2.5 hover:bg-emerald-50 transition" onClick={() => { setselectedMember(row); setShowConfirmUpgrade(true); setOpen(false); }}>Upgrade to Paid</button>
                 )}
+            </div>
+        );
+
+        return (
+            <div className="relative inline-block text-left">
+                <button ref={buttonRef} className="flex items-center justify-center h-8 w-8 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition" onClick={handleToggle} type="button">
+                    <EllipsisVertical className="h-4 w-4" />
+                </button>
+                {open && typeof window !== 'undefined' && createPortal(dropdownMenu, document.body)}
             </div>
         );
     }
 
-    
+    let content = <PreLoader />
+
+    const columns = [
+        {
+            name: "",
+            cell: row => renderActions(row),
+            width: "60px",
+        },
+        {
+            name: "Member",
+            sortable: true,
+            selector: row => row.fullname,
+            width: "250px",
+            cell: row => (
+                <div className="py-1">
+                    <p className="text-sm font-semibold text-slate-700 leading-tight">{row.fullname}</p>
+                    <p className="text-xs text-slate-400">@{row.username}</p>
+                </div>
+            )
+        },
+        {
+            name: "Contact",
+            width: "220px",
+            cell: row => (
+                <div className="py-1">
+                    <p className="text-xs text-slate-600 truncate">{row.emailadd || "-"}</p>
+                    <p className="text-xs text-slate-400">{row.mobile1 || "-"}</p>
+                </div>
+            )
+        },
+        {
+            name: "Sponsor",
+            sortable: true,
+            width: "160px",
+            selector: row => row.sponsorid?.username,
+            cell: row => <span className="text-sm text-slate-500">{row.sponsorid?.username || "-"}</span>
+        },
+        {
+            name: "Joined",
+            sortable: true,
+            width: "140px",
+            selector: row => row.date_signup,
+            cell: row => <span className="text-xs text-slate-500">{moment(row.date_signup).format("MMM DD, YYYY")}</span>
+        },
+        {
+            name: "Activated",
+            sortable: true,
+            width: "140px",
+            selector: row => row.date_time_activated,
+            cell: row => <span className="text-xs text-slate-500">{row.date_time_activated ? moment(row.date_time_activated).format("MMM DD, YYYY") : "-"}</span>
+        },
+        {
+            name: "Status",
+            width: "180px",
+            cell: row => (
+                <div className="flex flex-wrap gap-1">
+                    {row.isHub && (
+                        <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                            {HUBTYPE[row.hubtype] || 'Hub'}
+                        </span>
+                    )}
+                    {row.isCd && (
+                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${row.cdPaid ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'}`}>
+                            {row.cdPaid ? 'CD Paid' : 'CD Unpaid'}
+                        </span>
+                    )}
+                    {!row.isHub && !row.isCd && (
+                        <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-400">Member</span>
+                    )}
+                </div>
+            )
+        },
+    ];
+
+    if (loadstate === "success") {
+        content = <DataTable
+            noHeader
+            pagination
+            columns={columns}
+            data={members}
+            noDataComponent={<NoRecord />}
+            customStyles={customStyles}
+            highlightOnHover
+            pointerOnHover
+        />
+    }
+
     return (
-        <div className="w-full min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 px-3 sm:px-6 py-6">
-            <div className="max-w-7xl mx-auto">
-                {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Members</h1>
-                    <p className="text-gray-600">Manage and view all community members</p>
-                </div>
-
-                {/* Search Bar */}
-                <div className="mb-6">
-                    <div className="relative max-w-xl">
-                        <input
-                            className="w-full border border-gray-300 rounded-xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-400"
-                            placeholder="Search by username, email, or name..."
-                            id="search"
-                            name="search"
-                            value={search}
-                            type="text"
-                            onChange={handleChange}
-                        />
-                        <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+        <div className="mt-4 px-2">
+            <section className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 via-white to-sky-50 p-6 shadow-sm">
+                <div className="absolute -right-24 -top-16 h-48 w-48 rounded-full bg-sky-100/70 blur-3xl" />
+                <div className="absolute -left-24 bottom-0 h-48 w-48 rounded-full bg-amber-100/70 blur-3xl" />
+                <div className="relative z-10">
+                    <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                        <div>
+                            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Member Directory</p>
+                            <h1 className="mt-2 text-2xl font-semibold text-slate-800">Manage Members</h1>
+                            <p className="mt-2 max-w-xl text-sm text-slate-500">
+                                View, search, and manage all community members. Promote to hub or upgrade accounts.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                        <div className="rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-50">
+                                    <Users className="h-5 w-5 text-sky-600" />
+                                </div>
+                                <div>
+                                    <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Total Members</p>
+                                    <p className="mt-1 text-2xl font-semibold text-slate-800">{stats.total}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50">
+                                    <Crown className="h-5 w-5 text-amber-600" />
+                                </div>
+                                <div>
+                                    <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Hubs</p>
+                                    <p className="mt-1 text-2xl font-semibold text-slate-800">{stats.hubs}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50">
+                                    <Package className="h-5 w-5 text-emerald-600" />
+                                </div>
+                                <div>
+                                    <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Commission Deduction</p>
+                                    <p className="mt-1 text-2xl font-semibold text-slate-800">{stats.cd}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </section>
 
-                {/* Results Info */}
-                {loadstate === "success" && (
-                    <div className="mb-4 text-sm text-gray-600">
-                        Showing <span className="font-semibold text-gray-900">{members.length}</span> member{members.length !== 1 ? 's' : ''}
+            <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div>
+                        <h2 className="text-lg font-semibold text-slate-800">All Members</h2>
+                        <p className="text-sm text-slate-500">Search and manage member accounts.</p>
                     </div>
-                )}
-
-                {/* Content */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-                    <div className="p-6">
-                        {content}
+                    <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                        <div className="relative w-full sm:max-w-xs">
+                            <input
+                                type="text"
+                                value={search}
+                                onChange={handleChange}
+                                placeholder="Search username, email, or name"
+                                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-600 shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-100"
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>
+                <div className="mt-4 overflow-x-auto">
+                    {content}
+                </div>
+            </section>
 
             <ConfirmHub showConfirm={showPromoteHub} setshowConfirm={setshowPromoteHub} onYes={handleConfirmHub} selectedMember={selectedMember} />
             <ConfirmUpgrade showConfirm={showConfirmUpgrade} setshowConfirm={setShowConfirmUpgrade} onYes={handleConfirmUpgrade} selectedMember={selectedMember} />
@@ -355,3 +335,58 @@ export default function Members(props) {
         </div>
     )
 }
+
+
+const customStyles = {
+    rows: {
+        style: {
+            fontSize: "14px",
+            color: "#334155",
+            paddingTop: '12px',
+            paddingBottom: '12px',
+            '&:not(:last-of-type)': {
+                borderBottomStyle: 'solid',
+                borderBottomWidth: '1px',
+                borderBottomColor: "#e2e8f0"
+            },
+            '&:hover': {
+                backgroundColor: "#f8fafc"
+            },
+            overflow: "visible !important"
+        }
+    },
+    headRow: {
+        style: {
+            borderBottomColor: "#e2e8f0"
+        }
+    },
+    headCells: {
+        style: {
+            fontSize: "13px",
+            fontWeight: "700",
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            paddingTop: '14px',
+            paddingBottom: '14px',
+            backgroundColor: "#f8fafc",
+            color: "#64748b"
+        }
+    },
+    cells: {
+        style: {
+            padding: '0px 16px',
+            backgroundColor: "#fff"
+        },
+    },
+    pagination: {
+        style: {
+            backgroundColor: "#fff",
+        },
+    },
+    noData: {
+        style: {
+            backgroundColor: "#fff",
+            color: "#475569"
+        }
+    }
+};

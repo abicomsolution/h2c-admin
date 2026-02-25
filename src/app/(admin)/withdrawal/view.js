@@ -1,12 +1,9 @@
 import { useState, useEffect } from 'react'
-import {  Modal, ModalBody, ModalHeader, ModalFooter, Checkbox, Label } from "flowbite-react";
+import { Modal, ModalBody, ModalHeader, ModalFooter } from "flowbite-react";
 import CancelBtn from '@/components/cancelBtn'
 import PrimaryBtn from '@/components/primaryBtn';
 import SecondaryBtn from '@/components/secondaryBtn';
-import { interFont } from '../layout';
 import { TriangleAlert } from "lucide-react";
-import Process from '@/components/process';
-import {  CircleCheck} from "lucide-react"
 import callApi from '@/utils/api-caller';
 import moment from 'moment';
 import { roundToTwo } from '@/utils/functions';
@@ -110,107 +107,99 @@ function View(props) {
 
     }
 
+    const formatMoney = (value) =>
+        Number(roundToTwo(value)).toLocaleString('en', { minimumFractionDigits: 2 })
+
     var errorBox = null
     if (errorMessage) {
-        errorBox = <div className="flex gap-2 bg-[#e12d2dbf] p-2 my-4">
-                    <TriangleAlert  className="h-6 w-6  text-white" strokeWidth={3} />
-                    <span className="text-base font-bold text-white">{errorMessage}</span>
-                </div>
-                    
+        errorBox = (
+            <div className="flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-3 py-2 text-red-700">
+                <TriangleAlert className="h-5 w-5" strokeWidth={2.5} />
+                <span className="text-sm font-semibold">{errorMessage}</span>
+            </div>
+        )
     }
 
-    let content =  <ModalBody>              
-                        <ModalHeader className='border-b-gray-200 pl-0'>Withdrawal Request</ModalHeader>
-                        {errorBox}
-                        <div className='mt-2 px-2'>
-                            <div className='grid grid-cols-[200px_1fr] gap-1'>
-                                <div>
-                                    <div className='border-b border-gray-200 py-3 text-[#404a60]'>
-                                        <p className="md:text-lg font-medium block">Date/Time:</p>
-                                    </div>
-                                    <div className='border-b border-gray-200 py-3 text-[#404a60]'>
-                                        <p className="md:text-lg font-medium block ">Member:</p>
-                                    </div>
-                                    <div className='border-b border-gray-200 py-3 text-[#404a60]'>
-                                        <p className="md:text-lg font-medium block ">Payout Method:</p>
-                                    </div>
-                                     <div className='border-b border-gray-200 py-3 text-[#404a60]'>
-                                        <p className="md:text-lg font-medium block ">Account Name:</p>
-                                    </div>
-                                     <div className='border-b border-gray-200 py-3 text-[#404a60]'>
-                                        <p className="md:text-lg font-medium block ">Account/Mobile #:</p>
-                                    </div>
-                                     <div className='border-b border-gray-200 py-3 text-[#404a60]'>
-                                        <p className="md:text-lg font-medium block ">Amount:</p>
-                                    </div>
-                                    <div className='border-b border-gray-200 py-3 text-[#404a60]'>
-                                        <p className="md:text-lg font-medium block ">Tax:</p>
-                                    </div>
-                                    <div className='border-b border-gray-200 py-3 text-[#404a60]'>
-                                        <p className="md:text-lg font-medium block ">Admin Fee:</p>
-                                    </div>
-                                    <div className='border-b border-gray-200 py-3 text-[#404a60]'>
-                                        <p className="md:text-lg font-medium block ">Net:</p>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className='border-b border-gray-200 py-3'>
-                                        <p className="md:text-lg font-medium block">{moment(request.transdate).format("MMM-DD-YYYY hh:mm A")}</p>
-                                    </div>
-                                    <div className='border-b border-gray-200 py-3'>
-                                        <p className="md:text-lg font-medium block ">{request.member_id.fullname} - ({request.member_id.username})</p>
-                                    </div>
-                                    <div className='border-b border-gray-200 py-3'>
-                                        <p className="md:text-lg font-medium block ">{request.paymethod.name}</p>
-                                    </div>
-                                    <div className='border-b border-gray-200 py-3'>
-                                        <p className="md:text-lg font-medium block ">{request.accountname}</p>
-                                    </div>
-                                     <div className='border-b border-gray-200 py-3'>
-                                        <p className="md:text-lg font-medium block ">{request.accountno}</p>
-                                    </div>
-                                     <div className='border-b border-gray-200 py-3'>
-                                        <p className="md:text-lg font-medium block ">{Number(roundToTwo(request.amount)).toLocaleString('en', {minimumFractionDigits: 2})}</p>
-                                    </div>
-                                    <div className='border-b border-gray-200 py-3'>
-                                        <p className="md:text-lg font-medium block ">{Number(roundToTwo(request.tax)).toLocaleString('en', {minimumFractionDigits: 2})}</p>
-                                    </div>
-                                    <div className='border-b border-gray-200 py-3'>
-                                        <p className="md:text-lg font-medium block ">{Number(roundToTwo(request.adminfee)).toLocaleString('en', {minimumFractionDigits: 2})}</p>
-                                    </div>
-                                    <div className='border-b border-gray-200 py-3'>
-                                        <p className="md:text-lg font-medium block ">{Number(roundToTwo(request.net)).toLocaleString('en', {minimumFractionDigits: 2})}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            {/* <input
-                                className="w-full text-sm border border-[#dcdcdc] rounded-3xl px-3 md:px-6 py-2 md:py-3 mb-5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="" id="username" name="username" value={username} onChange={handleChange} type="text" maxLength={40}></input> */}
-                        </div>      
-                
-                        <ModalFooter className='justify-between px-2'>                    
-                            <CancelBtn onClick={handleClose}>
-                                Cancel
-                            </CancelBtn>
-                            <div className='flex gap-2'>
-                                <SecondaryBtn type="button" onClick={handleReject} isLoading={processState==="reject"}>
-                                    Reject
-                                </SecondaryBtn>
-                                <PrimaryBtn type="button" onClick={handleApprove} isLoading={processState==="approve"}>
-                                    Approve
-                                </PrimaryBtn>
-                            </div>
-                        </ModalFooter>
-                    
-                    </ModalBody>     
+    let content = (
+        <>
+            <ModalHeader className="border-b border-slate-200 px-6 py-4">
+                <div className="flex w-full flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-400">
+                            Withdrawal Request
+                        </p>
+                        <h3 className="text-lg font-semibold text-slate-900">
+                            {request.member_id.fullname}
+                            <span className="text-sm font-medium text-slate-500"> ({request.member_id.username})</span>
+                        </h3>
+                        <p className="text-xs text-slate-500">
+                            {moment(request.transdate).format("MMM DD, YYYY hh:mm A")}
+                        </p>
+                    </div>
+                  
+                </div>
+            </ModalHeader>
+            <ModalBody className="px-6 py-5">
+                <div className="flex flex-col gap-4">
+                    {errorBox}
+                    <div className="grid gap-3 md:grid-cols-2">
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-3">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Payout Method</p>
+                            <p className="mt-1 text-sm font-semibold text-slate-900">{request.paymethod.name}</p>
+                        </div>
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-3">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Account Name</p>
+                            <p className="mt-1 text-sm font-semibold text-slate-900">{request.accountname}</p>
+                        </div>
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-3">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Account / Mobile</p>
+                            <p className="mt-1 text-sm font-semibold text-slate-900">{request.accountno}</p>
+                        </div>
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-3">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Contact</p>
+                            <p className="mt-1 text-sm font-semibold text-slate-900">{request.contactno || "--"}</p>
+                        </div>
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_10px_24px_rgba(15,23,42,0.06)]">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Amount</p>
+                            <p className="mt-1 text-base font-semibold text-slate-900">{formatMoney(request.amount)}</p>
+                        </div>
+                        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_10px_24px_rgba(15,23,42,0.06)]">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Tax</p>
+                            <p className="mt-1 text-base font-semibold text-slate-900">{formatMoney(request.tax)}</p>
+                        </div>
+                        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_10px_24px_rgba(15,23,42,0.06)]">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Admin Fee</p>
+                            <p className="mt-1 text-base font-semibold text-slate-900">{formatMoney(request.adminfee)}</p>
+                        </div>
+                        <div className="rounded-2xl border border-slate-200 bg-slate-900 p-3 text-white shadow-[0_16px_32px_rgba(15,23,42,0.2)]">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-300">Net</p>
+                            <p className="mt-1 text-base font-semibold">{formatMoney(request.net)}</p>
+                        </div>
+                    </div>
+                </div>
+            </ModalBody>
+            <ModalFooter className="justify-between border-t border-slate-200 px-6 py-4">
+                <CancelBtn onClick={handleClose}>Cancel</CancelBtn>
+                <div className="flex gap-2">
+                    <SecondaryBtn type="button" onClick={handleReject} isLoading={processState==="reject"}>
+                        Reject
+                    </SecondaryBtn>
+                    <PrimaryBtn type="button" onClick={handleApprove} isLoading={processState==="approve"}>
+                        Approve
+                    </PrimaryBtn>
+                </div>
+            </ModalFooter>
+        </>
+    )
    
 
     return(
-        <Modal show={showView}  onClose={handleClose} size="3xl" >            
-            {content}           
+        <Modal show={showView} onClose={handleClose} size="3xl">
+            {content}
             <Confirm showConfirm={showConfirm} setshowConfirm={setshowConfirm} onYes={handleYes} ptype={ptype}/>
-           
-      </Modal>
+        </Modal>
     )
 
 }

@@ -45,24 +45,32 @@ const memberSchema = new Schema({
     isUpgraded: { type: Boolean, default: false },
     date_upgraded: { type: Date, default: null },
     hub_province: { type: Schema.Types.ObjectId, ref: 'province', default: null },    
-    hub_city: { type: Schema.Types.ObjectId, ref: 'city',  default: null }
+    hub_city: { type: Schema.Types.ObjectId, ref: 'city',  default: null },
+    dragnet_activated: { type: Boolean, default: false },
+    dragnet_date_activated: { type: Date, default: null },
+    dragnet_rank: { type: Number, default: 0 },
+    dragnet_accounttype: { type: Number, default: 0 }
 }, { toJSON: { virtuals: true } });
 
 memberSchema.virtual('value').get(function () {
     return this._id;
 })
-
-
 memberSchema.virtual('label').get(function () {
-    return "(" +  this.username+ ") " + this.fname + ' ' +  this.mname + " " + this.lname;
+    return this.fullname + ' (' + this.username + ')';
 })
 
+memberSchema.virtual('beneficiaries', {
+    ref: 'member_beneficiary',
+    localField: '_id',
+    foreignField: 'member_id'
+});
 
 export default mongoose.models.member || mongoose.model("member", memberSchema);
 
 //hubtype
-// 1 - Municipal Hub
-// 2 - City Hub
+// 0 - Municipal Hub
+// 1 - City Hub
+// 2 - Provincial Hub
 
 // rank
 // 0 - Member
