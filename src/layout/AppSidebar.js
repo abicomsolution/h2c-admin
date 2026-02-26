@@ -72,9 +72,14 @@ const navItems = [
     name: "Orders",   
     path: "/orders",
   },
+   {
+    icon: <ReceiptText className="h-4 w-4"/>,
+    name: "Transactions v2.0",   
+    path: "/transactions-v2",
+  },
   {
     icon: <ReceiptText className="h-4 w-4"/>,
-    name: "Transactions",   
+    name: "Transactions v1.0",   
     path: "/transactions",
   },
   {

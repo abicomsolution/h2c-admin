@@ -8,140 +8,138 @@ import PreLoader from '@/components/preloader';
 import callApi from "@/utils/api-caller";
 import NoRecord from "@/components/NoRecord";
 import moment from "moment";
+import { CODETYPE } from "@/utils/constants";
 
 export default function History(props) {
 
-    const [showGenerate, setshowGenerate] = useState(false)
-    const [showSend, setshowSend] = useState(false)
- 
     const session = useSession()
     const [initialized, setinitialized] = useState(false) 
-
     const router = useRouter();
     const [codes, setcodes] = useState([]);
     const [loadstate, setloadstate] = useState("")
-        
 
-
-      useEffect(() => {
+    useEffect(() => {
     
         if (session.status === "unauthenticated") {
             router.replace("/login");
-        }else if (session.status=="authenticated"){                 
+        } else if (session.status === "authenticated") {                 
             setinitialized(true)                
         }
     
     }, [session])
 
-
     useEffect(() => {
         
-      if (initialized){        
-          init()   
-      }
+        if (initialized) {        
+            init()   
+        }
       
     }, [initialized])
 
-
-    const init = async ()=>{
+    const init = async () => {
         setloadstate("loading")     
-        try{           
-            // setTimeout(() => {
-            //     setloadstate("success")
-            // }, 2000);                  
-            const ret =  await callApi("/code/history", "POST", {}) 
-            if (ret.status==200){                
+        try {           
+            const ret = await callApi("/code/history", "POST", {}) 
+            if (ret.status == 200) {                
                 setcodes(ret.data)
                 setloadstate("success")
-            }else{              
+            } else {              
                 setloadstate("")
             }
-
-        }catch(err){
+        } catch(err) {
             console.log(err)
             setloadstate("")
         }
-        
     }
 
+    console.log(codes)
 
-    const handleGen = ()=>{
-        setshowGenerate(true)
-    }
-
-    const handleSend = ()=>{
-        setshowSend(true)
-    }
-
-    const handleGenSuccess = ()=>{
-        setshowGenerate(false)
-        init()   
-    }
-
-    const handleSendSuccess = ()=>{
-        setshowSend(false)
-        init()
-    }
-
-    let content = <PreLoader/>
-
-  
-     const columns = [
+    const columns = [
+         {
+            name: "Type",
+            selector:  row => row.transtype==0?"Sent":"Received",                            
+            sortable: true,
+            width: "120px",  
+            center: "true"            
+        },    
         {
             name: "Date/Time Sent",
-            selector:  row => moment(row.time_sent).format("MMM-DD-YYYY hh:mm A"),
+            selector: row => moment(row.time_sent).format("MMM-DD-YYYY hh:mm A"),
             sortable: true,
-            width: "250px",                   
+            width: "220px",                   
         },
         {
-            name: 'Receiver',
-            selector: row=>row.receiver_id?.fullname + ` (${row.receiver_id?.username})`,
+            name: "Receiver",
+            selector: row => row.receiver_id?.fullname + ` (${row.receiver_id?.username})`,
             sortable: true,          
         },
         {
-            name: 'Count',
-            selector: row=>row.count,
+            name: "Quantity",
+            selector: row => row.count,
             sortable: true,
-            center: "true"         
-        }      
-       
+            center: true,
+            width: "110px",
+        },
+        {
+            name: "Code Type",
+            selector: row => CODETYPE.find(t => t.value === row.code_id?.codetype)?.label || "-",
+            sortable: true,
+            width: "160px",
+        },
+        {
+            name: "",
+            cell: row => {
+                const isCD = row.code_id?.isCD
+                const isFS = row.code_id?.isFS
+                if (isCD) {
+                    return <span className="text-xs font-medium px-2 py-1 rounded bg-amber-50 text-amber-700 border border-amber-200">CD</span>
+                } else if (isFS) {
+                    return <span className="text-xs font-medium px-2 py-1 rounded bg-purple-50 text-purple-700 border border-purple-200">FS</span>
+                }
+                return <span className="text-xs font-medium px-2 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Paid</span>
+            },
+            width: "90px",
+            sortFunction: (a, b) => {
+                const val = r => r.code_id?.isCD ? 2 : r.code_id?.isFS ? 1 : 0
+                return val(a) - val(b)
+            },
+            sortable: true,
+        },
     ];
 
-    if (loadstate==="success"){
-        content =   <DataTable
+    let content = <PreLoader/>
+
+    if (loadstate === "success") {
+        content = <DataTable
                         noHeader
                         pagination
                         columns={columns}
                         data={codes}
                         noDataComponent={<NoRecord/>}
                         customStyles={customStyles}
+                        highlightOnHover
+                        pointerOnHover
                     />
     }
 
-  
     return (
-        <div className="mt-4 px-2">            
-           
-            <div className='mt-4'>
+        <div className="mt-4 px-2">
+            <div className="mt-4">
                 {content}
             </div>
         </div>
     )
 }
 
-
-
-
 const customStyles = {
     rows: {
         style: {
-            fontSize: "15px",            
-            // minHeight: '50px',
+            fontSize: "15px",
             color: "#404a60",  
             paddingTop: '18px',  
             paddingBottom: '18px',              
             opacity: 0.9,
-             '&:not(:last-of-type)': {
+            '&:not(:last-of-type)': {
                 borderBottomStyle: 'solid',
                 borderBottomWidth: '1px',
                 borderBottomColor: "#e5e7ebad"
@@ -155,12 +153,13 @@ const customStyles = {
     },
     headCells: {
         style: {
-            fontSize: "16px",
-            fontWeight: "800",
-            paddingTop: '18px',  
-            paddingBottom: '18px',  
+            fontSize: "13px",
+            fontWeight: "700",
+            paddingTop: '10px',  
+            paddingBottom: '10px',  
             backgroundColor: "#4371e90d",
-            color: "#404a60"           
+            color: "#404a60",
+            textTransform: "uppercase",
         }
     },
     cells: {
@@ -172,8 +171,6 @@ const customStyles = {
     pagination: {
         style: {
             backgroundColor: "#fff",
-          
-
         },
     },
     noData: {

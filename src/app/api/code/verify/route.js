@@ -21,7 +21,9 @@ export const POST = async (request) => {
         let params = {
             status: 0,
             member_id: '68bbcda70b12e0477ccb75df',
-            codetype: body.codetype ?? 0
+            codetype: body.codetype ?? 0,
+            isCD: body.isCD ?? false,
+            isFS: body.isFS ?? false
         }
         let bCodes = await Code.find(params).limit(parseInt(body.qty))
        

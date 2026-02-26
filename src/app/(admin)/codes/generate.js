@@ -15,12 +15,15 @@ function Generate(props) {
     const [genstate, setgenstate] = useState("")
     const [errorMessage, setErrorMessage] = useState("")
     const [isCD, setIsCD] = useState(false)
+    const [isFS, setIsFS] = useState(false)
     const [codeType, setcodeType] = useState("0")
 
     useEffect(()=>{
 
         if (showGenerate){
             setqty(1)
+            setIsCD(false)
+            setIsFS(false)
             setErrorMessage("")
             setgenstate("")
             setcodeType("0")
@@ -48,7 +51,7 @@ function Generate(props) {
         try{
 
             setgenstate("process")
-            const ret =  await callApi("/code",'POST',{qty: qty, isCD: isCD, codetype: Number(codeType)}) 
+            const ret =  await callApi("/code",'POST',{qty: qty, isCD: isCD, isFS: isFS, codetype: Number(codeType)}) 
             if (ret.status==200){          
                 setgenstate("success")                     
             }else{
@@ -101,7 +104,15 @@ function Generate(props) {
                                                 name="codeType"
                                                 value={String(item.value)}
                                                 checked={codeType === String(item.value)}
-                                                onChange={(event) => setcodeType(event.target.value)}
+                                                onChange={(event) => {
+                                                    setcodeType(event.target.value)
+                                                    if (event.target.value !== "2" && event.target.value !== "3") {
+                                                        setIsFS(false)
+                                                    }
+                                                    if (event.target.value === "1") {
+                                                        setIsCD(false)
+                                                    }
+                                                }}
                                                 className="h-4 w-4 border-slate-300 text-slate-700"
                                             />
                                             <span className="font-semibold">{item.label}</span>
@@ -114,13 +125,22 @@ function Generate(props) {
                         <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                             <div className="flex items-start gap-3">
                                 <div className="mt-1">
-                                    <Checkbox id="isCD" checked={isCD} onChange={() => setIsCD(!isCD)} />
+                                    <Checkbox id="isCD" checked={isCD} disabled={codeType === "1"} onChange={() => { setIsCD(!isCD); setIsFS(false); }} />
                                 </div>
                                 <div>
-                                    <Label htmlFor="isCD" className="text-sm font-semibold text-slate-700">
+                                    <Label htmlFor="isCD" className={`text-sm font-semibold ${codeType === "1" ? "text-slate-400" : "text-slate-700"}`}>
                                         Commission Deduction
                                     </Label>
-                                    <p className="mt-1 text-xs text-slate-400">Enable if codes should be deducted from commissions.</p>
+                                    <p className="mt-1 text-xs text-slate-400">Not available for BR. Enable if codes should be deducted from commissions.</p>
+                                </div>
+                                <div className="mt-1">
+                                    <Checkbox id="isFS" checked={isFS} disabled={codeType !== "2" && codeType !== "3"} onChange={() => { setIsFS(!isFS); setIsCD(false); }} />
+                                </div>
+                                <div>
+                                    <Label htmlFor="isFS" className={`text-sm font-semibold ${codeType !== "2" && codeType !== "3" ? "text-slate-400" : "text-slate-700"}`}>
+                                        Privilege Slot
+                                    </Label>
+                                    <p className="mt-1 text-xs text-slate-400">Only available for Jumpstart and Basic code types.</p>
                                 </div>
                             </div>
                         </div>

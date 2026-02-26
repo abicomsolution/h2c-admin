@@ -19,7 +19,9 @@ export const POST = async (request) => {
         let params = {     
             status: 0,
             member_id: '68bbcda70b12e0477ccb75df',
-            codetype: body.codetype ?? 0
+            codetype: body.codetype ?? 0,
+            isCD: body.isCD ?? false,
+            isFS: body.isFS ?? false
         }
         let bCodes = await Code.find(params).limit(parseInt(body.qty))        
         if (parseInt(body.qty)>bCodes.length){
@@ -35,14 +37,7 @@ export const POST = async (request) => {
             return NextResponse.json({}, { status: 200 });           
         }        
 
-        // return NextResponse.json({}, { status: 200 });         
-        // let bErr = await generate(parseInt(body.qty))
-        // if (bErr){
-        //     var _err = { name: bErr};          
-        //     return NextResponse.json(_err, { status: 500 });
-        // }else{
-        //     return NextResponse.json([], { status: 200 });           
-        // }        
+        
     } catch (err) {
        return err.name
     }
@@ -76,17 +71,40 @@ const send = async (body, codes)=>{
 
             await Code.findByIdAndUpdate(e._id, param);
 
-            const hdata = {
-                member_id: "68bbcda70b12e0477ccb75df",
-                receiver_id: body.recipient,
-                code_id: e._id,
-                date_sent: param.datetime_sent,
-                time_sent: param.datetime_sent,
-                batch_id: batch_id
-            };
+             const hdata = [
+                    {
+                        transtype: 0, // send
+                        member_id: "68bbcda70b12e0477ccb75df" ,                        
+                        receiver_id: body.recipient,
+                        code_id: e._id,
+                        date_sent: param.datetime_sent,
+                        time_sent: param.datetime_sent,
+                        batch_id: batch_id
+                    },
+                    {
+                        transtype: 1, // received
+                        member_id:  body.recipient,
+                        receiver_id: "68bbcda70b12e0477ccb75df",
+                        code_id: e._id,
+                        date_sent: param.datetime_sent,
+                        time_sent: param.datetime_sent,
+                        batch_id: batch_id
+                    }
+                ];
+            
+            await CodeHistory.insertMany(hdata);
 
-            const newHistory = new CodeHistory(hdata);
-            await newHistory.save();
+            // const hdata = {
+            //     member_id: "68bbcda70b12e0477ccb75df",
+            //     receiver_id: body.recipient,
+            //     code_id: e._id,
+            //     date_sent: param.datetime_sent,
+            //     time_sent: param.datetime_sent,
+            //     batch_id: batch_id
+            // };
+
+            // const newHistory = new CodeHistory(hdata);
+            // await newHistory.save();
         }
 
     } catch (err) {

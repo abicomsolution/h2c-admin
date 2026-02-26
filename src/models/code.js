@@ -11,6 +11,7 @@ const codeSchema = new Schema({
     datetime_used: { type: Date, default: null },
     codenum: { type: 'String' },
     isCD: { type: Boolean, default: false },
+    isFS: { type: Boolean, default: false },  //  Privilege Slot
     status: { type: Number, default: 0 },
     codetype: { type: Number, default: 0 },   
     order_id: { type: Schema.Types.ObjectId, ref: 'order_header' },
@@ -37,7 +38,9 @@ codeSchema.virtual('label').get(function () {
     }
 
     if (this.isCD) {
-        retS = retS + " (CD)";   
+        retS = retS + " (CD)";       
+    }else  if (this.isFS) {
+        retS = retS + " (PS)";      
     }
     return retS;
 })

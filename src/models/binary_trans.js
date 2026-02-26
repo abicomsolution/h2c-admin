@@ -14,6 +14,7 @@ const binaryTransSchema = new Schema({
     remarks: { type: 'String', default: "" },
     position: { type: String, default: "" },
     hasdd: { type: Boolean, default: false },
+    hasddU: { type: Boolean, default: false },
     points: { type: Number, default: 0 },
     from_member_id: { type: Schema.Types.ObjectId, ref: 'member', default: null },    
 });
@@ -30,6 +31,7 @@ export default mongoose.models.binary_trans || mongoose.model("binary_trans", bi
 // 4 - performance
 // 5 - stairstep
 // 6 - breakaway
+// 7 - hubroyalty
 // 10 - wallet withdrawal
 // 11 - direct withdrawal
 // 12 - double direct withdrawal
@@ -37,4 +39,10 @@ export default mongoose.models.binary_trans || mongoose.model("binary_trans", bi
 // 14 - performance withdrawal
 // 15 - stairstep withdrawal
 // 16 - breakaway withdrawal
+// 17 - hubroyalty withdrawal
+
+// trans_type = 
+// 0 reg
+// 1 - dr- (upgrdae)
+
 

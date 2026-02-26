@@ -35,6 +35,7 @@ const memberSchema = new Schema({
     accountname: { type: 'String' },
     pmcontactno: { type: 'String' },
     isCd: { type: Boolean, default: false },
+    isFs: { type: Boolean, default: false },
     cdPaid: { type: Boolean, default: false },        
     isPILock: { type: Boolean, default: false },       
     isAddLock: { type: Boolean, default: false },       

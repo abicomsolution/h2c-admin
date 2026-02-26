@@ -31,6 +31,10 @@ const binaryEarningSchema = new Schema({
     breakaway: { type: Number, default: 0 },
     breakaway_withdrawn: { type: Number, default: 0 },
     breakaway_balance: { type: Number, default: 0 },
+
+    hubroyalty: { type: Number, default: 0 },
+    hubroyalty_withdrawn: { type: Number, default: 0 },
+    hubroyalty_balance: { type: Number, default: 0 },
     
     accumulated: { type: Number, default: 0 },    
     withdrawal: { type: Number, default: 0 },

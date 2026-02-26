@@ -16,11 +16,12 @@ const opts = [
     {value: -1, label: "All"},
     {value: 0, label: "H2C Wallet"},
     {value: 1, label: "Direct Referral"},
-    {value: 2, label: "Indirect Referral"},
-    {value: 3, label: "CTP"},
-    {value: 4, label: "Unilevel"},
-    {value: 5, label: "Royalty"},
-    {value: 6, label: "Transferred To Wallet"},
+    {value: 2, label: "Double Referral"},
+    {value: 3, label: "Sales Match Bonus"},
+    {value: 4, label: "Leadership"},
+    {value: 5, label: "Stairstep"},
+    {value: 6, label: "Breakaway"},
+    {value: 7, label: "Hub Royalty"}
 ]
 
 const controlStyle = {    
@@ -120,7 +121,7 @@ export default function Transaction(props) {
         console.log("Initializing with params:", params);
         setloadstate("loading")     
         try{                 
-            const ret =  await callApi("/trans", "POST", params) 
+            const ret =  await callApi("/trans/v2", "POST", params) 
             if (ret.status==200){                
                 setData(ret.data)
                 setloadstate("success")
@@ -143,28 +144,19 @@ export default function Transaction(props) {
 		}else if (item.earning_type==1){
 			desc = "Direct referral from  " +  item.from_member_id.fullname + " (" + item.from_member_id.username + ")"
 		}else if (item.earning_type==2){
-            desc = "Indirect referral from " +  item.from_member_id.fullname + " (" + item.from_member_id.username + ") - Level " + item.level
+            desc = "Double referral from " +  item.from_member_id.fullname + " (" + item.from_member_id.username +")"
        	}else if (item.earning_type==3){
-	        desc = "CTP from  " +  item.from_member_id.fullname + " (" + item.from_member_id.username + ")"
+	        desc = "Sales match from  " +  item.from_member_id.fullname + " (" + item.from_member_id.username + ")"
         }else if (item.earning_type==4){
-	        desc = "Unilevel income -  " +  item.remarks
+	        desc = "Leadership from  " +  item.from_member_id.fullname + " (" + item.from_member_id.username + ")"
        	}else if (item.earning_type==5){
-	        desc = "Leadership royalty from  " +  item.from_member_id.fullname + " (" + item.from_member_id.username + ")"
+	        desc = "Stairstep from  " +  item.from_member_id.fullname + " (" + item.from_member_id.username + ")"
         }else if (item.earning_type==6){
-	        desc = "Transfer direct referral to wallet"
+	        desc = "Breakaway from  " +  item.from_member_id.fullname + " (" + item.from_member_id.username + ")"
         }else if (item.earning_type==7){
-	        desc = "Transfer indirect referral to wallet"
-        }else if (item.earning_type==8){
-	        desc = "Transfer CTP to wallet"
-        }else if (item.earning_type==9){
-	        desc = "Transfer unilevel to wallet"
-        }else if (item.earning_type==10){
-	        desc = "Transfer leadership royalty to wallet"
-        }else if (item.earning_type==12){
-	        desc = "Hub royalty from  " +  item.from_member_id?.fullname + " (" + item.from_member_id?.username + ")"
-        }else if (item.earning_type==13){
-	        desc = "Transfer hub royalty to wallet"
+	        desc = "Hub Royalty from  " +  item.from_member_id.fullname + " (" + item.from_member_id.username + ")"
         }
+            
         return desc;
     }
 

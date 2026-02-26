@@ -8,6 +8,7 @@ const codeHistorySchema = new Schema({
     code_id: { type: Schema.Types.ObjectId, ref: 'code' },
     date_sent: { type: Date, default: null },
     time_sent: { type: Date, default: null },
+    transtype: { type: Number, default: 0 },  
     batch_id: { type: 'String' }
 
 });

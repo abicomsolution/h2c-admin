@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import {  Modal, ModalBody, ModalHeader, ModalFooter } from "flowbite-react";
+import {  Modal, ModalBody, ModalHeader, ModalFooter, Checkbox, Label } from "flowbite-react";
 import CancelBtn from '@/components/cancelBtn'
 import PrimaryBtn from '@/components/primaryBtn';
 import { TriangleAlert } from "lucide-react";
@@ -19,6 +19,8 @@ function Send(props) {
     const [sendstate, setsendstate] = useState("")
     const [recipient, setrecipient] = useState(null)
     const [codeType, setcodeType] = useState("0")
+    const [isCD, setIsCD] = useState(false)
+    const [isFS, setIsFS] = useState(false)
 
     useEffect(()=>{
 
@@ -29,6 +31,8 @@ function Send(props) {
             setverifystate("")
             setsendstate("")
             setcodeType("0")
+            setIsCD(false)
+            setIsFS(false)
         }
 
     },[showSend])
@@ -67,7 +71,7 @@ function Send(props) {
         try{
             setErrorMessage("")    
             setverifystate("verify")            
-            let params = { recipient: username, qty: qty, codetype: Number(codeType) }            
+            let params = { recipient: username, qty: qty, codetype: Number(codeType), isCD: isCD, isFS: isFS }            
             const ret =  await callApi("/code/verify",'POST', params) 
             if (ret.status==200){    
                 setrecipient(ret.data)      
@@ -88,7 +92,7 @@ function Send(props) {
         try{
             setErrorMessage("")                
             setsendstate("send")
-            let params = { recipient: recipient._id, qty: qty, codetype: Number(codeType) }            
+            let params = { recipient: recipient._id, qty: qty, codetype: Number(codeType), isCD: isCD, isFS: isFS }            
             const ret =  await callApi("/code/send",'POST', params) 
             if (ret.status==200){     
                 setverifystate("")             
@@ -138,12 +142,39 @@ function Send(props) {
                                                 name="codeType"
                                                 value={String(item.value)}
                                                 checked={codeType === String(item.value)}
-                                                onChange={(event) => setcodeType(event.target.value)}
+                                                onChange={(event) => {
+                                                    setcodeType(event.target.value)
+                                                    if (event.target.value !== "2" && event.target.value !== "3") {
+                                                        setIsFS(false)
+                                                    }
+                                                    if (event.target.value === "1") {
+                                                        setIsCD(false)
+                                                    }
+                                                }}
                                                 className="h-4 w-4 border-slate-300 text-slate-700"
                                             />
                                             <span className="font-semibold">{item.label}</span>
                                         </label>
                                     ))}
+                                </div>
+                            </div>
+                            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                                <p className="text-sm font-semibold text-slate-700">Code option</p>
+                                <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                                    <label className={`flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm transition hover:border-slate-300 flex-1 ${codeType === "1" ? "opacity-40 cursor-not-allowed" : "text-slate-700"}`}>
+                                        <Checkbox id="isCD" checked={isCD} disabled={codeType === "1"} onChange={() => { setIsCD(!isCD); setIsFS(false); }} className="mt-0.5" />
+                                        <div>
+                                            <Label htmlFor="isCD" className={`text-sm font-semibold ${codeType === "1" ? "text-slate-400" : "text-slate-700"}`}>Commission Deduction</Label>
+                                            <p className="mt-1 text-xs text-slate-400">Not available for BR.</p>
+                                        </div>
+                                    </label>
+                                    <label className={`flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm transition hover:border-slate-300 flex-1 ${codeType !== "2" && codeType !== "3" ? "opacity-40 cursor-not-allowed" : "text-slate-700"}`}>
+                                        <Checkbox id="isFS" checked={isFS} disabled={codeType !== "2" && codeType !== "3"} onChange={() => { setIsFS(!isFS); setIsCD(false); }} className="mt-0.5" />
+                                        <div>
+                                            <Label htmlFor="isFS" className={`text-sm font-semibold ${codeType !== "2" && codeType !== "3" ? "text-slate-400" : "text-slate-700"}`}>Privilege Slot</Label>
+                                            <p className="mt-1 text-xs text-slate-400">Only for Jumpstart and Basic.</p>
+                                        </div>
+                                    </label>
                                 </div>
                             </div>
                             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -181,6 +212,10 @@ function Send(props) {
                             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                                 <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Code Type</p>
                                 <p className="mt-1 text-sm font-semibold text-slate-700">{selectedTypeLabel}</p>
+                            </div>
+                            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Code Option</p>
+                                <p className="mt-1 text-sm font-semibold text-slate-700">{isCD ? "Commission Deduction" : isFS ? "Privilege Slot" : "Paid"}</p>
                             </div>
                             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                                 <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Quantity</p>

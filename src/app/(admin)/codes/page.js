@@ -132,10 +132,12 @@ export default function Codes(props) {
                     className={
                         row.isCD
                             ? "inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700"
+                            : row.isFS
+                            ? "inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700"
                             : "inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700"
                     }
                 >
-                    {row.isCD ? "Commission Deduction" : "Paid"}
+                    {row.isCD ? "Commission Deduction" : row.isFS ? "Privilege Slot" : "Paid"}
                 </span>
             ),
             width: "250px",                   
@@ -145,25 +147,29 @@ export default function Codes(props) {
     ];
 
     const stats = useMemo(() => {
-        const paidCount = codes.filter((code) => !code.isCD).length
+        const paidCount = codes.filter((code) => !code.isCD && !code.isFS).length
         const cdCount = codes.filter((code) => code.isCD).length
+        const fsCount = codes.filter((code) => code.isFS).length
 
         return {
             total: codes.length,
             paid: paidCount,
-            commissionDeduction: cdCount
+            commissionDeduction: cdCount,
+            privilegeSlot: fsCount
         }
     }, [codes])
 
     const summaryByType = useMemo(() => {
         return CODETYPE.map((item) => {
-            const paid = codes.filter((code) => !code.isCD && code.codetype === item.value).length
+            const paid = codes.filter((code) => !code.isCD && !code.isFS && code.codetype === item.value).length
             const commission = codes.filter((code) => code.isCD && code.codetype === item.value).length
+            const privilegeSlot = codes.filter((code) => code.isFS && code.codetype === item.value).length
 
             return {
                 ...item,
                 paid,
-                commission
+                commission,
+                privilegeSlot
             }
         })
     }, [codes])
@@ -232,10 +238,15 @@ export default function Codes(props) {
                                 <p className="mt-2 text-2xl font-semibold text-amber-600">{stats.commissionDeduction}</p>
                                 <p className="mt-1 text-xs text-slate-400">All commission deduction codes</p>
                             </div>
+                            <div className="rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+                                <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Privilege Slot</p>
+                                <p className="mt-2 text-2xl font-semibold text-purple-600">{stats.privilegeSlot}</p>
+                                <p className="mt-1 text-xs text-slate-400">All privilege slot codes</p>
+                            </div>
                             <div className="rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm sm:col-span-2">
                                 <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Total Available</p>
                                 <p className="mt-2 text-2xl font-semibold text-slate-800">{stats.total}</p>
-                                <p className="mt-1 text-xs text-slate-400">Paid + commission deduction</p>
+                                <p className="mt-1 text-xs text-slate-400">Paid + commission deduction + privilege slot</p>
                             </div>
                         </div>
                         <div className="rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-sm">
@@ -243,17 +254,19 @@ export default function Codes(props) {
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">Per Code Type</p>                                
                             </div>
                             <div className="mt-3 overflow-hidden rounded-lg border border-slate-200">
-                                <div className="grid grid-cols-[1fr_0.7fr_0.7fr] bg-slate-50 px-2.5 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                                <div className="grid grid-cols-[1fr_0.7fr_0.7fr_0.7fr] bg-slate-50 px-2.5 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                                     <span>Code Type</span>
                                     <span className="text-right">Paid</span>
                                     <span className="text-right">CD</span>
+                                    <span className="text-right">FS</span>
                                 </div>
                                 <div className="divide-y divide-slate-200 bg-white">
                                     {summaryByType.map((item) => (
-                                        <div key={item.value} className="grid grid-cols-[1fr_0.7fr_0.7fr] items-center px-2.5 py-2">
+                                        <div key={item.value} className="grid grid-cols-[1fr_0.7fr_0.7fr_0.7fr] items-center px-2.5 py-2">
                                             <p className="text-sm font-semibold text-slate-700">{item.label}</p>
                                             <p className="text-right text-xs font-semibold text-emerald-600">{item.paid}</p>
                                             <p className="text-right text-xs font-semibold text-amber-600">{item.commission}</p>
+                                            <p className="text-right text-xs font-semibold text-purple-600">{item.privilegeSlot}</p>
                                         </div>
                                     ))}
                                 </div>
