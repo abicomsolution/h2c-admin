@@ -79,3 +79,11 @@ export default mongoose.models.member || mongoose.model("member", memberSchema);
 // 2 - Manager
 // 3 - Director
 // 4 - Ambassador
+
+// dragnet_accounttype
+// 0 - H2C 1.0
+// 1 - BR
+// 2 - Jumpstart
+// 3 - Basic
+// 4 - Pro
+// 5 - Elite

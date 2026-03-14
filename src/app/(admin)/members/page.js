@@ -10,7 +10,7 @@ import NoRecord from '@/components/NoRecord';
 import { createPortal } from 'react-dom';
 import ConfirmHub from '../members/confirmHub';
 import toast, { Toaster } from 'react-hot-toast';
-import { HUBTYPE } from '@/utils/constants';
+import { HUBTYPE, BINARY_PKG } from '@/utils/constants';
 import ConfirmUpgrade from './confirmUpgrade';
 import { EllipsisVertical, Users, Crown, Package } from 'lucide-react';
 
@@ -27,6 +27,7 @@ export default function Members(props) {
     const [showPromoteHub, setshowPromoteHub] = useState(false)
     const [selectedMember, setselectedMember] = useState(null)
     const [showConfirmUpgrade, setShowConfirmUpgrade] = useState(false)
+    const [versionFilter, setVersionFilter] = useState("all")
 
     useEffect(() => {
         if (session.status === "unauthenticated") {
@@ -111,8 +112,16 @@ export default function Members(props) {
         const total = members.length
         const hubs = members.filter(m => m.isHub).length
         const cd = members.filter(m => m.isCd).length
-        return { total, hubs, cd }
+        const v1 = members.filter(m => m.activated && !m.dragnet_activated).length
+        const v2 = members.filter(m => m.dragnet_activated).length
+        return { total, hubs, cd, v1, v2 }
     }, [members])
+
+    const filteredMembers = useMemo(() => {
+        if (versionFilter === "1.0") return members.filter(m => m.activated && !m.dragnet_activated)
+        if (versionFilter === "2.0") return members.filter(m => m.dragnet_activated)
+        return members
+    }, [members, versionFilter])
 
     const renderActions = (row) => {
         const [open, setOpen] = React.useState(false);
@@ -211,11 +220,33 @@ export default function Members(props) {
             cell: row => <span className="text-xs text-slate-500">{moment(row.date_signup).format("MMM DD, YYYY")}</span>
         },
         {
-            name: "Activated",
+            name: "1.0 Activated",
             sortable: true,
             width: "140px",
             selector: row => row.date_time_activated,
             cell: row => <span className="text-xs text-slate-500">{row.date_time_activated ? moment(row.date_time_activated).format("MMM DD, YYYY") : "-"}</span>
+        },
+        {
+            name: "2.0 Activated",
+            sortable: true,
+            width: "140px",
+            selector: row => row.dragnet_date_activated,
+            cell: row => <span className="text-xs text-slate-500">{row.dragnet_date_activated ? moment(row.dragnet_date_activated).format("MMM DD, YYYY") : "-"}</span>
+        },
+        {
+            name: "2.0 Account Type",
+            sortable: true,
+            width: "150px",
+            selector: row => row.dragnet_accounttype,
+            cell: row => {
+                if (!row.dragnet_activated) return <span className="text-xs text-slate-400">-</span>
+                const pkg = BINARY_PKG.find(p => p.codetype === row.dragnet_accounttype)
+                return (
+                    <span className="inline-flex items-center rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold text-sky-700">
+                        {pkg ? pkg.name : `Type ${row.dragnet_accounttype}`}
+                    </span>
+                )
+            }
         },
         {
             name: "Status",
@@ -245,7 +276,7 @@ export default function Members(props) {
             noHeader
             pagination
             columns={columns}
-            data={members}
+            data={filteredMembers}
             noDataComponent={<NoRecord />}
             customStyles={customStyles}
             highlightOnHover
@@ -268,7 +299,7 @@ export default function Members(props) {
                             </p>
                         </div>
                     </div>
-                    <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                    <div className="mt-6 grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
                         <div className="rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm">
                             <div className="flex items-center gap-3">
                                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-50">
@@ -302,6 +333,28 @@ export default function Members(props) {
                                 </div>
                             </div>
                         </div>
+                        <div className="rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100">
+                                    <Users className="h-5 w-5 text-slate-600" />
+                                </div>
+                                <div>
+                                    <p className="text-xs uppercase tracking-[0.18em] text-slate-400">1.0 Members</p>
+                                    <p className="mt-1 text-2xl font-semibold text-slate-800">{stats.v1}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-50">
+                                    <Users className="h-5 w-5 text-violet-600" />
+                                </div>
+                                <div>
+                                    <p className="text-xs uppercase tracking-[0.18em] text-slate-400">2.0 Members</p>
+                                    <p className="mt-1 text-2xl font-semibold text-slate-800">{stats.v2}</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -313,6 +366,21 @@ export default function Members(props) {
                         <p className="text-sm text-slate-500">Search and manage member accounts.</p>
                     </div>
                     <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+                        <div className="flex items-center rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+                            {["all", "1.0", "2.0"].map((v) => (
+                                <button
+                                    key={v}
+                                    onClick={() => setVersionFilter(v)}
+                                    className={`rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+                                        versionFilter === v
+                                            ? "bg-white text-slate-800 shadow-sm"
+                                            : "text-slate-400 hover:text-slate-600"
+                                    }`}
+                                >
+                                    {v === "all" ? "All" : v}
+                                </button>
+                            ))}
+                        </div>
                         <div className="relative w-full sm:max-w-xs">
                             <input
                                 type="text"

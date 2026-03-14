@@ -82,3 +82,57 @@ export const CODETYPE = [
     { value: 4, label: "Pro" },
     { value: 5, label: "Elite" }
 ]
+
+
+export const BINARY_PKG = [
+    
+    {
+        codetype: 0,        
+        name: "1.0",
+        price: 2800,
+        percent_direct: 0,
+        binarypt: 0,
+        maxincome: -1
+    },
+    {
+        codetype: 1,
+        name: "BR",
+        price: 1200,
+        binarypt: 0,
+        percent_direct: 0,
+        maxincome: -1
+    },
+    {
+        codetype: 2,
+        name: "Jumpstart",
+        price: 2400,
+        percent_direct: 10,
+        binarypt: 1,
+        maxincome: 8000
+    },
+    {
+        codetype: 3,
+        name: "Basic",
+        price: 6000,
+        percent_direct: 10,
+        binarypt: 2.5,
+        maxincome: 16000
+    },
+    {
+        codetype: 4,
+        name: "Pro",
+        price: 12000,
+        percent_direct: 10,
+        binarypt: 5,
+        maxincome: 32000
+    },
+    {
+        codetype: 5,
+        name: "Elite",
+        price: 60000,
+        percent_direct: 10,
+        binarypt: 25,
+        maxincome: 1000000
+    }
+]
+
