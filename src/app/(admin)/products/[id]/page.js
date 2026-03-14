@@ -31,7 +31,8 @@ const initForm = {
     hub_profit: 0,
     h2c_wallet: 0,
     stairstep_alloc: 0,
-    unilevel_alloc: 0,    
+    unilevel_alloc: 0,
+    raffle: 0,
     photo_thumb: '',
     isMembership: false,
     isProdPackage: false,    
@@ -266,14 +267,14 @@ export default function Product(props) {
                 
                 const ret =  await callApi(url, "POST", data) 
                 if (ret.status==200){                
-                    setSaveState("success")                    
+                    setSaveState("success")
+                    setErrorMessage("")
                     router.replace("/products/"+ret.data)
                     toast.success('Product successfully saved!')
                 }else{              
                      setSaveState("") 
                      setErrorMessage(ret.name)
-                }
-                setErrorMessage("") 
+                } 
             }catch(err){
                 console.log(err)
                 setSaveState("") 
@@ -512,7 +513,7 @@ export default function Product(props) {
                     {/* Allocations Card */}
                     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 mb-5">Allocations</p>
-                        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                        <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label htmlFor="h2c_wallet" className={labelClass}>H2C Wallet</label>
                                 <input className={inputClass + " mt-2"} placeholder="0.00" id="h2c_wallet" value={formdata.h2c_wallet} type="number" name="h2c_wallet" onChange={handleChange} />
@@ -521,10 +522,15 @@ export default function Product(props) {
                                 <label htmlFor="stairstep_alloc" className={labelClass}>Stairstep</label>
                                 <input className={inputClass + " mt-2"} placeholder="0.00" id="stairstep_alloc" value={formdata.stairstep_alloc} type="number" name="stairstep_alloc" onChange={handleChange} />
                             </div>
+                              <div>
+                                <label htmlFor="raffle" className={labelClass}>Raffle</label>
+                                <input className={inputClass + " mt-2"} placeholder="0.00" id="raffle" value={formdata.raffle} type="number" name="raffle" onChange={handleChange} />
+                            </div>
                             <div>
                                 <label htmlFor="unilevel_alloc" className={labelClass}>Unilevel</label>
                                 <input className={inputClass + " mt-2"} placeholder="0.00" id="unilevel_alloc" value={formdata.unilevel_alloc} type="number" name="unilevel_alloc" onChange={handleChange} />
                             </div>
+                          
                         </div>
                     </div>
 
